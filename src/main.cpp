@@ -82,12 +82,23 @@ string removeComment(string newLine) {
 
 // based on boost library tokenizer.hpp
 vector<string> splitLine(string newLine) {
-  vector<string> tokens;
-  tokenizer<> tok(newLine);
-  for(tokenizer<>::iterator beg=tok.begin(); beg!=(tok.end());++beg){
-     tokens.push_back(*beg);
-  }
-  return tokens;
+  
+  vector<string> cmds;
+
+  //    This part is working
+  // tokenizer<> tok(newLine);
+  // for(tokenizer<>::iterator beg=tok.begin(); beg!=(tok.end());++beg){
+  //    tokens.push_back(*beg);
+  // }
+
+  typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+  boost::char_separator<char> sep(" ");
+  tokenizer tokens(newLine, sep);
+  for (tokenizer::iterator tok_iter = tokens.begin();
+       tok_iter != tokens.end(); ++tok_iter)
+    cmds.push_back(*tok_iter);
+  std::cout << "\n";
+  return cmds;
 }
 
 
@@ -102,10 +113,12 @@ int newCmd() {
   newLine = removeComment(newLine);
   vector<string> tokens = splitLine(newLine);
 
-  if (DEV) 
-    for (int i = 0; i < tokens.size(); i++) 
+  if (DEV) {
+    cout << "\n[Tokenized commands]\n";
+    for (int i = 0; i < tokens.size(); i++) {
       cout << tokens.at(i) << endl;
-
+    }
+  }
 
 
   if (newLine == "exit") {
