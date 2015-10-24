@@ -16,8 +16,8 @@ using namespace boost;
 
 
   // Initialized or testing purpose: running code in Windows to emulate getuserinfo() gethostname()
-  string user = "asong011";
-  char host[128] = "windows.local";
+  string user;
+  char host[128];
 
 void init() {
   cout << "\n\nrShell [Version 2015.10.23]\n";
@@ -40,16 +40,16 @@ string removeComment(string newLine) {
     if (newLine.at(index) == '\"') {
       if (DEV) cout << "\" found at position " << index;
       if ((index == 0) || (newLine.at(index-1) != '\\')) {
-        if (DEV) cout << " This is a real quotation mark." << endl;
+        if (DEV) cout << " This is a real quotation mark.\n";
         isInQuote = !isInQuote;
         if (DEV) cout << "[isInQuote] " << isInQuote << endl;
       }
       else {
         if (isInQuote) {
-          if (DEV) cout << " This is a slashed quotation mark in a quote." << endl;
+          if (DEV) cout << " This is a slashed quotation mark in a quote.\n";
         }
         else {
-          cout << "\n** WARNING: There might be a slashed quotation mark outside a quote!" << endl;
+          cout << "\n** WARNING: There might be a slashed quotation mark outside a quote!\n";
         }
         if (DEV) cout << "[isInQuote] " << isInQuote << endl;
       }
@@ -62,7 +62,7 @@ string removeComment(string newLine) {
         if (DEV) cout << ", however this # is in a Quote. Ignored.\n";
       }
       else {
-        if (DEV) cout << ", wow we found a comment!";
+        if (DEV) cout << ", wow we found a comment!\n";
         newLine = newLine.substr(0, index);
         break;
       }
@@ -82,23 +82,32 @@ string removeComment(string newLine) {
 
 // based on boost library tokenizer.hpp
 vector<string> splitLine(string newLine) {
-  
   vector<string> cmds;
-
-  //    This part is working
-  // tokenizer<> tok(newLine);
-  // for(tokenizer<>::iterator beg=tok.begin(); beg!=(tok.end());++beg){
-  //    tokens.push_back(*beg);
-  // }
-
   typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
   boost::char_separator<char> sep(" ");
   tokenizer tokens(newLine, sep);
-  for (tokenizer::iterator tok_iter = tokens.begin();
-       tok_iter != tokens.end(); ++tok_iter)
+  for (tokenizer::iterator tok_iter = tokens.begin(); tok_iter != tokens.end(); ++tok_iter) {
     cmds.push_back(*tok_iter);
-  std::cout << "\n";
+  }
+  if (DEV) {
+    cout << "\n[Tokenized commands]\n";
+    for (int i = 0; i < cmds.size(); i++) {
+      cout << cmds.at(i) << endl;
+    }
+  }
   return cmds;
+}
+
+
+vector<pair<int, pair<string, string> > > parser(vector<string> &tokens) {
+  vector<pair<int, pair<string, string> > > cmdList;
+  if (!DEV) {
+    cout << "\n[Tokenized commands]\n";
+    for (int i = 0; i < tokens.size(); i++) {
+      cout << "<" << tokens.at(i) << ">" << endl;
+    }
+  }
+  return cmdList;
 }
 
 
@@ -113,14 +122,27 @@ int newCmd() {
   newLine = removeComment(newLine);
   vector<string> tokens = splitLine(newLine);
 
-  if (DEV) {
-    cout << "\n[Tokenized commands]\n";
-    for (int i = 0; i < tokens.size(); i++) {
-      cout << tokens.at(i) << endl;
-    }
-  }
+  parser(tokens);
+
+  // ========================================================
+  // up to now, the command has been parsed to this format:
+  // vector<string>
+  // < string, string, string, string, string, string, string... >
+  // < "ls", "-l", "&&", "echo", "hello", "world", ";", "git", "status" >
+  // ========================================================
+  // CODES WILL BE ADDED HERE
+  // I'm trying to make the commands fit in this format:
+  // vector<pair<string, pair<string, string> > >
+  // < [connector], < [filename], [arguments] > >
+  // < ""         , < "ls"      , "-l"        > >
+  // < "&&"       , < "echo"   , "hello world" > >
+  // < ";"        , < "git"     , "status"    > >
+  // ========================================================
 
 
+
+
+  // internal command handler;
   if (newLine == "exit") {
     return -1; // use -1 as a exit signal
   }
@@ -130,29 +152,42 @@ int newCmd() {
   }
   else if (newLine == "debug off") {
     DEV = false;
-
-
-
-
-
-
-
-
-
-
-
-
-
     cout << "Debug output is now turned off." << endl;
   }
   else {
+    // TODO: execute the program here
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     return 0;
   }
 }
 
+
+
+
 int main(int argc, char *argv[]) {
   init();
-  while (newCmd() != -1) {
+  while (newCmd() != -1) { // loop until user enter "exit"
   };
   cout << "\n\n"; // kind of... clear the screen
   return 0;
