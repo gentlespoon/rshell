@@ -1,4 +1,5 @@
 #include <cstdlib>
+#include <boost/tokenizer.hpp>
 #include <string>
 #include <stdio.h>
 #include <iostream>
@@ -6,11 +7,14 @@
 #include <vector>
 #include <stddef.h>
 
-bool DEV = false;
+bool DEV =true;
 // global debug output control added.
 // can be switched by "$ debug [on|off]" in runtime
 
 using namespace std;
+using namespace boost;
+
+
   // Initialized or testing purpose: running code in Windows to emulate getuserinfo() gethostname()
   string user = "asong011";
   char host[128] = "windows.local";
@@ -76,19 +80,15 @@ string removeComment(string newLine) {
 }
 
 
-// developing - asong011 - 10/24/2015 - 2:43pm
+// based on boost library tokenizer.hpp
 vector<string> splitLine(string newLine) {
-  const char source = newLine;  
-  char delim[] = " ";  
-
-  char *s = strdup(source);  
-  char *token;  
-  for(token = strsep(&s, delim); token != NULL; token = strsep(&s, delim)) {  
-      printf(token);  
-      printf("+");  
-  }  
+  vector<string> tokens;
+  tokenizer<> tok(newLine);
+  for(tokenizer<>::iterator beg=tok.begin(); beg!=(tok.end());++beg){
+     tokens.push_back(*beg);
+  }
+  return tokens;
 }
-
 
 
 
@@ -100,6 +100,11 @@ int newCmd() {
   getline(cin, newLine);
 
   newLine = removeComment(newLine);
+  vector<string> tokens = splitLine(newLine);
+
+  if (DEV) 
+    for (int i = 0; i < tokens.size(); i++) 
+      cout << tokens.at(i) << endl;
 
 
 
@@ -112,6 +117,19 @@ int newCmd() {
   }
   else if (newLine == "debug off") {
     DEV = false;
+
+
+
+
+
+
+
+
+
+
+
+
+
     cout << "Debug output is now turned off." << endl;
   }
   else {
