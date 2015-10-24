@@ -16,8 +16,8 @@ using namespace std;
 void init() {
   cout << "\n\nrShell [Version 2015.10.23]\n";
   // Unix get userinfo
-  user = getlogin();
-  gethostname(host, 128);
+  // user = getlogin();
+  // gethostname(host, 128);
 
 }
 
@@ -37,6 +37,7 @@ int newCmd() {
 
 
   // first time find " second time find #, with bug - # in ""
+/*
   unsigned index = 0;
   while (string::npos != (index = newLine.find("\"", index ))) {
     cout << "Find " << newLine.at(index) << " at: " << index << endl;
@@ -59,6 +60,28 @@ int newCmd() {
   cout << endl;
   newLine = newLine.substr(0, newLine.find("#"));
   cout << "[Trimmed #] " << newLine << endl;
+*/
+
+  for (unsigned index = 0; index < newLine.length(); index++) {
+    if (newLine.at(index) == '\"') {
+      cout << "\" found at position " << index;
+      if ((index == 0) || (newLine.at(index-1) != '\\')) {
+        cout << ", this is a real quotation mark." << endl;
+        isInQuote = !isInQuote;
+        cout << "[isInQuote] " << isInQuote << endl;
+      }
+      else {
+        cout << ", this is a slashed quotation mark." << endl;
+        cout << "[isInQuote] " << isInQuote << endl;
+      }
+    }
+  }
+
+
+
+
+
+
 
 
   cout << "\n========== End Parsing =========\n\n[Final Command] " << endl << newLine << endl;
