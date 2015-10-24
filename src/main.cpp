@@ -4,6 +4,7 @@
 #include <iostream>
 #include <unistd.h>
 #include <vector>
+#include <stddef.h>
 
 bool DEV = false;
 // global debug output control added.
@@ -74,6 +75,23 @@ string removeComment(string newLine) {
   return newLine;
 }
 
+
+// developing - asong011 - 10/24/2015 - 2:43pm
+vector<string> splitLine(string newLine) {
+  const char source = newLine;  
+  char delim[] = " ";  
+
+  char *s = strdup(source);  
+  char *token;  
+  for(token = strsep(&s, delim); token != NULL; token = strsep(&s, delim)) {  
+      printf(token);  
+      printf("+");  
+  }  
+}
+
+
+
+
 int newCmd() {
   // to distinguish with system shell I used "R$" instead of "$"
   cout << "\n[" << user << "@" << host << "] R$ ";
@@ -101,7 +119,7 @@ int newCmd() {
   }
 }
 
-int main() {
+int main(int argc, char *argv[]) {
   init();
   while (newCmd() != -1) {
   };
