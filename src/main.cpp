@@ -67,11 +67,11 @@ int newCmd() {
 
   cmd1.removeComment();
   cmd1.printline();
-  // cmd1.parse(";");
+  cmd1.parse(";");
   // cmd1.printlist();
-  // cmd1.parse("&&");
+  cmd1.parse("&&");
   // cmd1.printlist();
-  // cmd1.parse("||");
+  cmd1.parse("||");
   // cmd1.printlist();
 
   // ========================================================

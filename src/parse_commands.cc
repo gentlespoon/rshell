@@ -17,14 +17,7 @@ protected:
     string cmdLine;
     vector<string> cmdList;
 public:
-/*                                                                     .oooooo.                                                                           .            
-                                                                      d8P'  `Y8b                                                                        .o8            
-oooo d8b  .ooooo.  ooo. .oo.  .oo.    .ooooo.  oooo    ooo  .ooooo.  888           .ooooo.  ooo. .oo.  .oo.   ooo. .oo.  .oo.    .ooooo.  ooo. .oo.   .o888oo  .oooo.o 
-`888""8P d88' `88b `888P"Y88bP"Y88b  d88' `88b  `88.  .8'  d88' `88b 888          d88' `88b `888P"Y88bP"Y88b  `888P"Y88bP"Y88b  d88' `88b `888P"Y88b    888   d88(  "8 
- 888     888ooo888  888   888   888  888   888   `88..8'   888ooo888 888          888   888  888   888   888   888   888   888  888ooo888  888   888    888   `"Y88b.  
- 888     888    .o  888   888   888  888   888    `888'    888    .o `88b    ooo  888   888  888   888   888   888   888   888  888    .o  888   888    888 . o.  )88b 
-d888b    `Y8bod8P' o888o o888o o888o `Y8bod8P'     `8'     `Y8bod8P'  `Y8bood8P'  `Y8bod8P' o888o o888o o888o o888o o888o o888o `Y8bod8P' o888o o888o   "888" 8""888P' 
-*/
+
     string removeComment() {
         if (DEV) cout << "\n======= Start Remove Comment =======\n[Raw Line] " << cmdLine << endl << endl;
         bool isInQuote = false;
@@ -78,14 +71,6 @@ d888b    `Y8bod8P' o888o o888o o888o `Y8bod8P'     `8'     `Y8bod8P'  `Y8bood8P'
 
 
 
-/*.ooooo.   .oooo.   oooo d8b  .oooo.o  .ooooo.  
- 888' `88b `P  )88b  `888""8P d88(  "8 d88' `88b 
- 888   888  .oP"888   888     `"Y88b.  888ooo888 
- 888   888 d8(  888   888     o.  )88b 888    .o 
- 888bod8P' `Y888""8o d888b    8""888P' `Y8bod8P' 
- 888                                             
-o888o                                            
-*/
     vector<string> parse(string delim) {
         // if parsing the first time, initialize cmdList
         if (cmdList.size() == 0) { cmdList.push_back(cmdLine); }
@@ -110,11 +95,14 @@ o888o
         return p_cmdList;
     }
 
-    // Just leave it there... good for now
+
 
 
     cmd (string newLine) {
         cmdLine = newLine;
+    }
+
+    ~cmd () {
     }
 
     void printline() {
@@ -126,18 +114,7 @@ o888o
           cout << cmdList.at(i) << endl;
         }
     }
-    // tokenizing
 
-
-
-    // vector<pair<int, pair<string, string> > > parser(vector<string> &tokens) {
-    //   vector<pair<int, pair<string, string> > > cmdList;
-    //   if (!DEV) {
-    //     cout << "\n[Tokenized commands]\n";
-
-    //   }
-    //   return cmdList;
-    // }
 };
 
 
