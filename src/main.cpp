@@ -247,11 +247,43 @@ int newCmd() {
   }
 }
 
+//forking into parent and child processes in order to execute
+bool exec(char* arg[])
+{
+    int status;
+    pid_t c_pid, pid;
+    c_pid = fork();
+    if (c_pid == 0)
+    {
+        //child process running
+		//execute command here
+        execvp(arg[0],arg);
+        perror("exec failed");
+    }
+    else if (c_pid > 0)
+    {
+        if ((pid = wait(&status)) < 0)
+        {
+            perror("waiting");
+            exit(1);
+        }
+    }
+    else
+    {
+        perror("fork failed");
+        exit(1);
+    }
+    return true;
+}
 
 int main(int argc, char *argv[]) {
   init();
-  while (newCmd() != -1) {
-  };
+  //while (newCmd() != -1) {
+  //};
+  cout << "testing forked execution of commands" << endl;
+  char* arg[2] = {"ls","-l"}
+  exec(arg);
+
   cout << "\n\n"; // kind of... clear the screen
   return 0;
 }
