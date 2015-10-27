@@ -38,11 +38,11 @@ int newCmd() {
   cmd1.parseCmd("&&");
   cmd1.parseCmd("||");
   cmd1.trimCmd();
-  cmd1.printlist();
+  // cmd1.printlist();
 
-  // internal command handler;
+  // rshell internal command handle;
   if (newLine == ""){
-
+    // if empty line
   } else if (newLine == "exit") {
     return -1; // use -1 as a exit signal
   } else if (newLine == "debug on") {
@@ -52,26 +52,7 @@ int newCmd() {
     DEV = false;
     cout << "Debug output is now turned off." << endl;
   } else {
-    // TODO: execute the program here
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    // TODO: execute the program
 
 
 

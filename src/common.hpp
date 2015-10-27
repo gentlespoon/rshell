@@ -13,7 +13,7 @@
 #include <stddef.h>
 #include <vector>
 
-bool DEV = true;
+bool DEV = false;
 // global debug output control added.
 // can be switched by "$ debug [on|off]" in runtime
 
