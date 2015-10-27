@@ -10,12 +10,22 @@ struct s_cmd {
     string exec;
     string file;
     string argv;
+    s_cmd() {
+        exec = "";
+        file = "";
+        argv = "";
+    }
+    s_cmd(string a, string b, string c) {
+        exec = a;
+        file = b;
+        argv = c;
+    }
 };
 
 class cmd {
 protected:
     string cmdLine;
-    vector<string> cmdList;
+    vector<s_cmd> cmdList;
 public:
 
     string removeComment() {
@@ -71,32 +81,54 @@ public:
 
 
 
-    vector<string> parse(string delim) {
+    vector<s_cmd> parseCmd(string delim) {
         // if parsing the first time, initialize cmdList
-        if (cmdList.size() == 0) { cmdList.push_back(cmdLine); }
-        string trim_space;
-
+        if (cmdList.size() == 0) {
+            s_cmd s_cmd1(";", "", cmdLine);
+            cmdList.push_back(s_cmd1);
+        }
+        // this->printlist();
+        string trimmed;
+        string file;
+        string argv;
+        unsigned space;
         if (DEV) cout << "\n======= Start Parsing for " << delim << " =======\n";
-        vector<string> p_cmdList;
+        vector<s_cmd> p_cmdList;
         for (int i = 0; i < cmdList.size(); i++) {
+            string currexec = cmdList.at(i).exec;
+            bool isHead = true;
             escaped_list_separator<char> els(/*escape*/"", /*seperator*/delim, /*quote*/"\"");
-            tokenizer<escaped_list_separator<char> > tok(cmdList.at(i), els);
+            tokenizer<escaped_list_separator<char> > tok(cmdList.at(i).argv, els);
             for(tokenizer<escaped_list_separator<char> >::iterator beg=tok.begin(); beg!=tok.end(); ++beg){
                 if (*beg != "") {
-                    trim_space = *beg;
-                    trim(trim_space);
-                    p_cmdList.push_back(trim_space);
-                    cout << "<" << trim_space << ">" << endl;
+                    trimmed = *beg;
+                    trim(trimmed);
+                    if (!isHead) {
+                        currexec = delim;
+                    }
+                    space = trimmed.find(' ');
+                    file = trimmed.substr(0, space);
+                    argv = trimmed;
+                    s_cmd s_cmd2(currexec, file, argv);
+                    p_cmdList.push_back(s_cmd2);
+                    if (DEV) cout << "[" << s_cmd2.exec << "] [" << s_cmd2.file << "] [" << s_cmd2.argv << "]\n";
+                    isHead = false;
                 }
             }
         }
+
         cmdList = p_cmdList;
         if (DEV) cout << "\n======== End Parsing for " << delim << " ========\n";
         return p_cmdList;
     }
 
 
-
+    vector<s_cmd> trimCmd() {
+        for (int i = 0; i< cmdList.size(); i++) {
+            cmdList.at(i).argv = cmdList.at(i).argv.substr(cmdList.at(i).argv.find(' ')+1);
+        }
+        return cmdList;
+    }
 
     cmd (string newLine) {
         cmdLine = newLine;
@@ -111,7 +143,7 @@ public:
     void printlist() {
         cout << "\nThe command list is\n";
         for (int i = 0; i < cmdList.size(); i++) {
-          cout << cmdList.at(i) << endl;
+          cout << "[" << cmdList.at(i).exec << "] [" << cmdList.at(i).file << "] [" << cmdList.at(i).argv << "]\n";
         }
     }
 

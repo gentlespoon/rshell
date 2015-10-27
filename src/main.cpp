@@ -59,52 +59,30 @@ int newCmd() {
     newLine = "cp \"/bin/bash\" \"/bin/bash# This Part is a\\ # inside a quote\"; echo \"Hello World\" #This is a real quote ";
     //newLine = "cp \"/bin/bash\" \"/bin/bash# This Part is a\\\" # inside a quote\"; echo \"Hello World\" #This is a real quote ";
   } else if (newLine == "test2") {
-    newLine = "ls -a; echo hello && mkdir test || echo world; git status";
+    newLine = "ls -a; echo hello velt && mkdir test || echo world; git status";
   }
 
   cmd cmd1(newLine);
-  cmd1.printline();
-
+  // cmd1.printline();
   cmd1.removeComment();
-  cmd1.printline();
-  cmd1.parse(";");
-  // cmd1.printlist();
-  cmd1.parse("&&");
-  // cmd1.printlist();
-  cmd1.parse("||");
-  // cmd1.printlist();
-
-  // ========================================================
-  // up to now, the command has been parsed to this format:
-  // vector<string>
-  // < string, string, string, string, string, string, string... >
-  // < "ls", "-l", "&&", "echo", "hello", "world", ";", "git", "status" >
-  // ========================================================
-  // CODES WILL BE ADDED HERE
-  // I'm trying to make the commands fit in this format:
-  // vector<pair<string, pair<string, string> > >
-  // < [connector], < [filename], [arguments] > >
-  // < ""         , < "ls"      , "-l"        > >
-  // < "&&"       , < "echo"   , "hello world" > >
-  // < ";"        , < "git"     , "status"    > >
-  // ========================================================
-
-
-
+  cmd1.parseCmd(";");
+  cmd1.parseCmd("&&");
+  cmd1.parseCmd("||");
+  cmd1.trimCmd();
+  cmd1.printlist();
 
   // internal command handler;
-  if (newLine == "exit") {
+  if (newLine == ""){
+
+  } else if (newLine == "exit") {
     return -1; // use -1 as a exit signal
-  }
-  else if (newLine == "debug on") {
+  } else if (newLine == "debug on") {
     DEV = true;
     cout << "Debug output is now turned on." << endl;
-  }
-  else if (newLine == "debug off") {
+  } else if (newLine == "debug off") {
     DEV = false;
     cout << "Debug output is now turned off." << endl;
-  }
-  else {
+  } else {
     // TODO: execute the program here
 
 
