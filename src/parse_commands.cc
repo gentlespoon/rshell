@@ -87,7 +87,6 @@ public:
             s_cmd s_cmd1(";", "", cmdLine);
             cmdList.push_back(s_cmd1);
         }
-        // this->printlist();
         string trimmed;
         string file;
         string argv;
@@ -97,7 +96,7 @@ public:
         for (int i = 0; i < cmdList.size(); i++) {
             string currexec = cmdList.at(i).exec;
             bool isHead = true;
-            escaped_list_separator<char> els(/*escape*/"", /*seperator*/delim, /*quote*/"\"");
+            escaped_list_separator<char> els(/*escape*/"", /*separator*/delim, /*quote*/"\"");
             tokenizer<escaped_list_separator<char> > tok(cmdList.at(i).argv, els);
             for(tokenizer<escaped_list_separator<char> >::iterator beg=tok.begin(); beg!=tok.end(); ++beg){
                 if (*beg != "") {

@@ -14,37 +14,6 @@ void init() {
   gethostname(host, 128);
 }
 
-
-// ==================== tokenizing / parsing ========================
-// based on boost library tokenizer.hpp
-
-
-// vector<string> splitLine(string newLine) {
-//   vector<string> cmds;
-  
-//   // typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-//   // boost::char_separator<char> sep(" ");
-//   // tokenizer tokens(newLine, sep);
-//   // for (tokenizer::iterator tok_iter = tokens.begin(); tok_iter != tokens.end(); ++tok_iter) {
-//   //   cmds.push_back(*tok_iter);
-//   // }
-  
-
-
-//   if (DEV) {
-//     cout << "\n[Tokenized commands]\n";
-//     for (int i = 0; i < cmds.size(); i++) {
-//       cout << cmds.at(i) << endl;
-//     }
-//   }
-//   return cmds;
-// }
-// ==================== tokenizing / parsing ========================
-
-
-
-
-
 int newCmd() {
   // to distinguish with system shell I used "R$" instead of "$"
   cout << "\n[" << user << "@" << host << "] R$ ";
@@ -54,7 +23,7 @@ int newCmd() {
 
   // override for testing
   if (newLine == "test1") {
-    // bug exists in the second testline; the boost/tokenizer class wont recognize \\\" in a quote.
+    // bug exists in the commented testline; the boost/tokenizer class wont recognize \\\" in a quote.
     // but as long as there's no multiple \"s in a quote, it will function well.
     newLine = "cp \"/bin/bash\" \"/bin/bash# This Part is a\\ # inside a quote\"; echo \"Hello World\" #This is a real quote ";
     //newLine = "cp \"/bin/bash\" \"/bin/bash# This Part is a\\\" # inside a quote\"; echo \"Hello World\" #This is a real quote ";
@@ -109,8 +78,6 @@ int newCmd() {
     return 0;
   }
 }
-
-
 
 
 int main(int argc, char *argv[]) {
