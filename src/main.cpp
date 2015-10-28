@@ -20,7 +20,9 @@ int newCmd() {
   // GET USER INPUT
   string newLine;
   getline(cin, newLine);
-
+  if (newLine == ""){
+    return 0;// if empty line
+  } 
   // override for testing
   if (newLine == "test1") {
     // bug exists in the commented testline; the boost/tokenizer class wont recognize \\\" in a quote.
@@ -28,7 +30,7 @@ int newCmd() {
     newLine = "cp \"/bin/bash\" \"/bin/bash# This Part is a\\ # inside a quote\"; echo \"Hello World\" #This is a real quote ";
     //newLine = "cp \"/bin/bash\" \"/bin/bash# This Part is a\\\" # inside a quote\"; echo \"Hello World\" #This is a real quote ";
   } else if (newLine == "test2") {
-    newLine = "ls -a; echo hello velt && mkdir test || echo world; git status";
+    newLine = "ls -a; echo hello velt && mkdir test || echo world; git status; exit";
   }
 
   cmd cmd1(newLine);
@@ -39,9 +41,7 @@ int newCmd() {
   cmd1.trimCmd();
 
   // rshell internal command handle;
-  if (newLine == ""){
-    // if empty line
-  } else if (newLine == "exit") {
+  if (newLine == "exit") {
     return -1; // use -1 as a exit signal
   } else if (newLine == "debug on") {
     DEV = true;

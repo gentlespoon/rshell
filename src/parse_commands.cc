@@ -29,7 +29,7 @@ protected:
 public:
 
     string removeComment() {
-        if (DEV) cout << "\n======= Start Remove Comment =======\n[Raw Line] " << cmdLine << endl << endl;
+        if (DEV) cout << "\n======= Start Remove Comment =======\n[Raw Line] " << cmdLine << endl;
         bool isInQuote = false;
 
         // Finished Quotation and Comments
@@ -117,17 +117,20 @@ public:
         }
 
         cmdList = p_cmdList;
-        if (DEV) cout << "\n======== End Parsing for " << delim << " ========\n";
+        if (DEV) cout << "======== End Parsing for " << delim << " ========\n";
         return p_cmdList;
     }
 
 
     vector<s_cmd> trimCmd() {
+        if (DEV) cout << "\n======= start trimCmd =======\n";
         for (int i = 0; i< cmdList.size(); i++) {
-            cmdList.at(i).argv = cmdList.at(i).argv.substr(cmdList.at(i).argv.find(' ')+1);
             if (cmdList.at(i).argv == cmdList.at(i).file) {
                 cmdList.at(i).argv = "";
             }
+            cmdList.at(i).argv = cmdList.at(i).argv.substr(cmdList.at(i).argv.find(' ')+1);
+            if (DEV) printlist();
+            if (DEV) cout << "======== end trimCmd ========\n";
         }
         return cmdList;
     }
@@ -140,12 +143,11 @@ public:
     }
 
     void printline() {
-        cout << "\nThe command line is\n"<< this->cmdLine<< endl;
+        cout << this->cmdLine<< endl;
     }
     void printlist() {
-        cout << "\nThe command list is\n";
         for (int i = 0; i < cmdList.size(); i++) {
-          cout << "[" << cmdList.at(i).exec << "] [" << cmdList.at(i).file << "] [" << cmdList.at(i).argv << "]\n";
+            cout << "[" << cmdList.at(i).exec << "] [" << cmdList.at(i).file << "] [" << cmdList.at(i).argv << "]\n";
         }
     }
     
@@ -176,7 +178,7 @@ public:
                     runCurrentCommand = false;
             }
             if (runCurrentCommand)
-            {
+            {   
                 //copying vector commands into character array
                 int arg1size = (cmdList.at(i).file).size();
                 int arg2size = (cmdList.at(i).argv).size();
@@ -185,6 +187,7 @@ public:
                 strcpy(arg1, (cmdList.at(i).file).c_str());
                 strcpy(arg2, (cmdList.at(i).argv).c_str());
                 char* arg[] = {arg1, arg2, NULL};
+
                 //set flag to see if command executed properly
                 if (!exec(arg))
                     previousStatus = false;
@@ -204,7 +207,7 @@ public:
         if (c_pid == 0)
         {
             //child process running
-            execvp(arg[0],arg);
+            execvp(arg[0], arg);
             perror("exec failed");
             exit(1);
         }
@@ -218,9 +221,8 @@ public:
                 return true;
             return false;
         }
-        else {
+        else
             perror("fork failed"); // is it.. fork failed and still return true?
-        }
         return true;
     }
 
