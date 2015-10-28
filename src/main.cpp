@@ -39,7 +39,7 @@ int newCmd() {
   cmd1.parseCmd("||");
   cmd1.trimCmd();
   // cmd1.printlist();
-
+  cmd1.generateExecCommand();
   // rshell internal command handle;
   if (newLine == ""){
     // if empty line
