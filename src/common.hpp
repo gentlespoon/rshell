@@ -12,6 +12,7 @@
 #include <vector>
 #include <stddef.h>
 #include <vector>
+#include <sys/wait.h>
 
 bool DEV = false;
 // global debug output control added.
