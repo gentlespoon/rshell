@@ -125,6 +125,9 @@ public:
     vector<s_cmd> trimCmd() {
         for (int i = 0; i< cmdList.size(); i++) {
             cmdList.at(i).argv = cmdList.at(i).argv.substr(cmdList.at(i).argv.find(' ')+1);
+            if (cmdList.at(i).argv == cmdList.at(i).file) {
+                cmdList.at(i).argv = "";
+            }
         }
         return cmdList;
     }
