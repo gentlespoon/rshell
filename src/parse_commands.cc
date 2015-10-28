@@ -218,8 +218,9 @@ public:
                 return true;
             return false;
         }
-        else
-            perror("fork failed");
+        else {
+            perror("fork failed"); // is it.. fork failed and still return true?
+        }
         return true;
     }
 

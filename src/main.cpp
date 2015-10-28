@@ -32,14 +32,11 @@ int newCmd() {
   }
 
   cmd cmd1(newLine);
-  // cmd1.printline();
   cmd1.removeComment();
   cmd1.parseCmd(";");
   cmd1.parseCmd("&&");
   cmd1.parseCmd("||");
   cmd1.trimCmd();
-  // cmd1.printlist();
-  cmd1.generateExecCommand();
 
   // rshell internal command handle;
   if (newLine == ""){
@@ -53,10 +50,7 @@ int newCmd() {
     DEV = false;
     cout << "Debug output is now turned off." << endl;
   } else {
-    // TODO: execute the program
-
-
-
+    cmd1.generateExecCommand();
     return 0;
   }
 }
