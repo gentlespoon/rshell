@@ -145,6 +145,80 @@ public:
           cout << "[" << cmdList.at(i).exec << "] [" << cmdList.at(i).file << "] [" << cmdList.at(i).argv << "]\n";
         }
     }
+    
+    void generateExecCommand()
+    {
+        //flag to check if we run current command based on previous command
+        bool previousStatus = true;
+        bool runCurrentCommand = true;
+        
+        for (unsigned int i = 0; i < cmdList.size(); i++)
+        {
+            if (cmdList.at(i).exec == ";")
+            {
+                runCurrentCommand = true;
+            }
+            else if (cmdList.at(i).exec == "&&")
+            {
+                if (!previousStatus)
+                    runCurrentCommand = false;
+                else
+                    runCurrentCommand = true;
+            }
+            else if (cmdList.at(i).exec == "||")
+            {
+                if (!previousStatus)
+                    runCurrentCommand = true;
+                else
+                    runCurrentCommand = false;
+            }
+            if (runCurrentCommand)
+            {
+                //copying vector commands into character array
+                int arg1size = (cmdList.at(i).file).size();
+                int arg2size = (cmdList.at(i).argv).size();
+                char arg1[arg1size];
+                char arg2[arg2size];
+                strcpy(arg1, (cmdList.at(i).file).c_str());
+                strcpy(arg2, (cmdList.at(i).argv).c_str());
+                char* arg[] = {arg1, arg2, NULL};
+                //set flag to see if command executed properly
+                if (!exec(arg))
+                    previousStatus = false;
+                else
+                    previousStatus = true;
+            }
+        }
+    }
+    //forking into parent and child processes in order to execute
+    //passed in parse command
+    bool exec(char* arg[])
+    {
+        int success;
+        int status;
+        pid_t c_pid, pid;
+        c_pid = fork();
+        if (c_pid == 0)
+        {
+            //child process running
+            execvp(arg[0],arg);
+            perror("exec failed");
+            exit(1);
+        }
+        else if (c_pid > 0)
+        {
+            if ((pid = wait(&status)) < 0)
+                perror("waiting");
+            if (WIFEXITED(status))
+                success = WEXITSTATUS(status);
+            if (success == 0)
+                return true;
+            return false;
+        }
+        else
+            perror("fork failed");
+        return true;
+    }
 
 };
 
