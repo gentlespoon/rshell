@@ -8,7 +8,7 @@ using namespace std;
   char host[999] = "localhost";
 
 void init() {
-  cout << "\n\nrShell [Version " << version << "]\n\nEnter \"debug on\" to turn on debug output.\n\n";
+  cout << "\n\n rShell [Version " << version << "]\n\nEnter \"debug on\" to turn on debug output.\n\n";
   // Unix get userinfo
   user = getlogin();
   gethostname(host, 999);

@@ -18,7 +18,7 @@ bool DEV = false;
 // global debug output control added.
 // can be switched by "$ debug [on|off]" in runtime
 
-int version = 20151026;
+int version = 20151028;
 
 
 #endif
