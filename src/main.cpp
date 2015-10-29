@@ -51,8 +51,8 @@ int newCmd() {
     cout << "Debug output is now turned off." << endl;
   } else {
     cmd1.generateExecCommand();
-    return 0;
   }
+  return 0;
 }
 
 
