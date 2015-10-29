@@ -268,9 +268,6 @@ public:
     }
   }
 
-//forking into parent and child processes in order to execute
-//passed in parse command
-
   bool exec(string file, string argv) {
     // handle rshell built-in commands;
     if (file == "debug") {

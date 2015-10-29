@@ -30,7 +30,7 @@ int newCmd() {
     newLine = "cp \"/bin/bash\" \"/bin/bash# This Part is a\\ # inside a quote\"; echo \"Hello World\" #This is a real quote ";
     //newLine = "cp \"/bin/bash\" \"/bin/bash# This Part is a\\\" # inside a quote\"; echo \"Hello World\" #This is a real quote ";
   } else if (newLine == "test2") {
-    newLine = "ls -a; echo hello velt && mkdir test || echo world; git status; exit";
+    newLine = "ls -a; echo hello velt && mkdir test || echo world; git status; exit; ls -l";
   }
 
   cmd cmd1(newLine);
