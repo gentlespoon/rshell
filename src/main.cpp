@@ -8,10 +8,10 @@ using namespace std;
   char host[999] = "localhost";
 
 void init() {
-  cout << "\n\nrShell [Version " << version << "]\n";
+  cout << "\n\nrShell [Version " << version << "]\n\nEnter \"debug on\" to turn on debug output.\n\n";
   // Unix get userinfo
   user = getlogin();
-  gethostname(host, 998);
+  gethostname(host, 999);
 }
 
 int newCmd() {

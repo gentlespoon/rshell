@@ -276,6 +276,7 @@ public:
     if (file == "debug") {
       if ((argv == "on") || argv == "1") {
         DEV = true;
+        cout << "Debug output is now turned on.\ndebug [on|off]" << endl;
       } else {
         DEV = false;
       }
