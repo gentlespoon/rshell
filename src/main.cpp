@@ -5,13 +5,13 @@ using namespace std;
 
   // Initialized for testing purpose: running code in Windows to emulate getuserinfo() gethostname()
   string user = "user";
-  char host[128] = "localhost";
+  char host[999] = "localhost";
 
 void init() {
   cout << "\n\nrShell [Version " << version << "]\n";
   // Unix get userinfo
   user = getlogin();
-  gethostname(host, 128);
+  gethostname(host, 998);
 }
 
 int newCmd() {
@@ -39,19 +39,7 @@ int newCmd() {
   cmd1.parseCmd("&&");
   cmd1.parseCmd("||");
   cmd1.trimCmd();
-
-  // rshell internal command handle;
-  if (newLine == "exit") {
-    return -1; // use -1 as a exit signal
-  } else if (newLine == "debug on") {
-    DEV = true;
-    cout << "Debug output is now turned on." << endl;
-  } else if (newLine == "debug off") {
-    DEV = false;
-    cout << "Debug output is now turned off." << endl;
-  } else {
-    cmd1.generateExecCommand();
-  }
+  cmd1.generateExecCommand();
   return 0;
 }
 

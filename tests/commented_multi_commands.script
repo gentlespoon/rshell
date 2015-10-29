@@ -1,0 +1,56 @@
+Script started on Wed 28 Oct 2015 11:09:21 PM PDT
+]0;asong011@hammer:~/Desktop/CS-100/assn/assn1/rshell[?1034h[asong011@hammer rshell]$ ./bin/rshell
+
+
+rShell [Version 20151026]
+
+[asong011@hammer.cs.ucr.edu] R$ ls -l && echo hello world #ls -l
+total 56
+drwxr-xr-x 2 asong011 csmajs  4096 Oct 28 23:04 bin
+-rw-r--r-- 1 asong011 csmajs  1015 Oct 28 23:09 commented_command.sh
+-rw-r--r-- 1 asong011 csmajs     0 Oct 28 23:09 commented_multi_commands.script
+-rw-r--r-- 1 asong011 csmajs 18047 Oct 24 12:54 LICENSE
+-rw-r--r-- 1 asong011 csmajs   198 Oct 28 22:49 Makefile
+-rw-r--r-- 1 asong011 csmajs  3454 Oct 28 23:07 multi_commands.script
+-rw-r--r-- 1 asong011 csmajs     9 Oct 24 12:54 README.md
+-rw-r--r-- 1 asong011 csmajs  4053 Oct 28 23:03 single_command.script
+drwxr-xr-x 2 asong011 csmajs  4096 Oct 26 17:48 src
+drwxr-xr-x 2 asong011 csmajs  4096 Oct 28 23:05 test
+drwxr-xr-x 2 asong011 csmajs  4096 Oct 28 22:55 tests
+hello world
+
+[asong011@hammer.cs.ucr.edu] R$ ls -l * && echo hello world ; #ls -l
+total 56
+drwxr-xr-x 2 asong011 csmajs  4096 Oct 28 23:04 bin
+-rw-r--r-- 1 asong011 csmajs  1015 Oct 28 23:09 commented_command.sh
+-rw-r--r-- 1 asong011 csmajs     0 Oct 28 23:09 commented_multi_commands.script
+-rw-r--r-- 1 asong011 csmajs 18047 Oct 24 12:54 LICENSE
+-rw-r--r-- 1 asong011 csmajs   198 Oct 28 22:49 Makefile
+-rw-r--r-- 1 asong011 csmajs  3454 Oct 28 23:07 multi_commands.script
+-rw-r--r-- 1 asong011 csmajs     9 Oct 24 12:54 README.md
+-rw-r--r-- 1 asong011 csmajs  4053 Oct 28 23:03 single_command.script
+drwxr-xr-x 2 asong011 csmajs  4096 Oct 26 17:48 src
+drwxr-xr-x 2 asong011 csmajs  4096 Oct 28 23:05 test
+drwxr-xr-x 2 asong011 csmajs  4096 Oct 28 22:55 tests
+hello world
+
+[asong011@hammer.cs.ucr.edu] R$ ls -l && echo hello world; #hell    ls -l && hell    c echo hello world
+total 56
+drwxr-xr-x 2 asong011 csmajs  4096 Oct 28 23:04 bin
+-rw-r--r-- 1 asong011 csmajs  1015 Oct 28 23:09 commented_command.sh
+-rw-r--r-- 1 asong011 csmajs     0 Oct 28 23:09 commented_multi_commands.script
+-rw-r--r-- 1 asong011 csmajs 18047 Oct 24 12:54 LICENSE
+-rw-r--r-- 1 asong011 csmajs   198 Oct 28 22:49 Makefile
+-rw-r--r-- 1 asong011 csmajs  3454 Oct 28 23:07 multi_commands.script
+-rw-r--r-- 1 asong011 csmajs     9 Oct 24 12:54 README.md
+-rw-r--r-- 1 asong011 csmajs  4053 Oct 28 23:03 single_command.script
+drwxr-xr-x 2 asong011 csmajs  4096 Oct 26 17:48 src
+drwxr-xr-x 2 asong011 csmajs  4096 Oct 28 23:05 test
+drwxr-xr-x 2 asong011 csmajs  4096 Oct 28 22:55 tests
+hello world
+
+[asong011@hammer.cs.ucr.edu] R$ exit
+]0;asong011@hammer:~/Desktop/CS-100/assn/assn1/rshell[asong011@hammer rshell]$ exit
+exit
+
+Script done on Wed 28 Oct 2015 11:10:19 PM PDT

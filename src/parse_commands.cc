@@ -269,18 +269,34 @@ public:
   }
 
 //forking into parent and child processes in order to execute
-  //passed in parse command
+//passed in parse command
+
   bool exec(string file, string argv) {
-    char *args[3];
+    // handle rshell built-in commands;
+    if (file == "debug") {
+      if ((argv == "on") || argv == "1") {
+        DEV = true;
+      } else {
+        DEV = false;
+      }
+      return true;
+    }
+    if (file == "exit") {
+      exit(0);
+    }
+    // handle rshell built-in commands;
+
+    char *args[3] = {NULL, NULL, NULL};
     args[0] = const_cast<char *>(file.c_str());
-    args[1] = const_cast<char *>(argv.c_str());
-    args[2] = NULL;
+    if (argv.length() != 0) {
+      args[1] = const_cast<char *>(argv.c_str());
+    }
 
     int status;
     pid_t child;
-    pid_t c;
+    pid_t result;
     if ((child = fork()) == 0) { /* Child process. */
-      cout << "Child pid= " << getpid() << endl;
+      if (DEV) cout << "Child pid= " << getpid() << endl;
       execvp(args[0], args);
       cout << stderr << "execvp failed" << endl;
       return false;
@@ -289,8 +305,8 @@ public:
         cout << stderr << "fork failed" << endl;
         return false;
       } else {
-        c = wait(&status); /* Wait for child to complete. */
-        cout << "Parent: Child " << c << " exited with status = " << status << endl;
+        result = wait(&status); /* Wait for child to complete. */
+        if (DEV) cout << "Parent: Child " << result << " exited with status = " << status << endl;
       }
     }
     return true;
