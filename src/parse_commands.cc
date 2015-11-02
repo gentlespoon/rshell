@@ -96,7 +96,7 @@ public:
     for (unsigned i = 0; i < cmdList.size(); i++) {
       string currexec = cmdList.at(i).exec;
       bool isHead = true;
-      escaped_list_separator<char> els(/*escape*/"", /*separator*/delim, /*quote*/"\"");
+      escaped_list_separator<char> els(/*escape*/"\\", /*separator*/delim, /*quote*/"\"");
       tokenizer<escaped_list_separator<char> > tok(cmdList.at(i).argv, els);
       for(tokenizer<escaped_list_separator<char> >::iterator beg=tok.begin(); beg!=tok.end(); ++beg){
         if (*beg != "") {
@@ -268,14 +268,18 @@ public:
     }
   }
 
-  bool exec(string file, string argv) {
+  //forking into parent and child processes in order to execute
+  //passed in parse command
+  bool exec(string file, string argv)
+  {
     // handle rshell built-in commands;
     if (file == "debug") {
       if ((argv == "on") || argv == "1") {
         DEV = true;
-        cout << "Debug output is now turned on.\ndebug [on|off]" << endl;
+        cout << "Debug output is now turned on.\nToggle: debug [on|off]" << endl;
       } else {
         DEV = false;
+        cout << "Debug output is now turned off.\nToggle: debug [on|off]" << endl;
       }
       return true;
     }
@@ -290,31 +294,32 @@ public:
       args[1] = const_cast<char *>(argv.c_str());
     }
 
+    int success;
     int status;
-    pid_t child;
-    pid_t result;
-    if ((child = fork()) == 0) { /* Child process. */
-      if (DEV) cout << "Child pid= " << getpid() << endl;
+    pid_t c_pid, pid;
+    c_pid = fork();
+    if (c_pid == 0) {
+      //child process running
       execvp(args[0], args);
-      cout << stderr << "execvp failed" << endl;
-      return false;
-    } else {
-      if (child == (pid_t)(-1)) {
-        cout << stderr << "fork failed" << endl;
-        return false;
-      } else {
-        result = wait(&status); /* Wait for child to complete. */
-        if (DEV) cout << "Parent: Child " << result << " exited with status = " << status << endl;
-      }
+      perror("exec failed");
+      exit(1);
     }
-    return true;
+    else if (c_pid > 0) {
+      if ((pid = wait(&status)) < 0) {
+        perror("waiting");
+      }
+      if (WIFEXITED(status)) {
+        success = WEXITSTATUS(status);
+      }
+      if (success == 0) {
+        return true;
+      }
+      return false;
+    }
+    else {
+      perror("fork failed"); // is it.. still return true when fork failed?
+    }return true;
   }
-
-
-
-
-
-
 
 
 };
