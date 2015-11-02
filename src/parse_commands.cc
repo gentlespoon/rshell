@@ -69,6 +69,7 @@ public:
         }
       }
     }
+    
     // Finished Remove Comment
     if (isInQuote) { // if when the line ends we are still in a quote
       cout << "\n** WARNING: The line ends in a quote. \" expected.\n";
