@@ -15,8 +15,9 @@ void init() {
 }
 
 int newCmd() {
+
   // to distinguish with system shell I used "R$" instead of "$"
-  cout << "\n[" << user << "@" << host << "] R$ ";
+  cout << "\n" << c_blue << "[" << user << "@" << host << "] R$ " << c_reset;
   // GET USER INPUT
   string newLine;
   getline(cin, newLine);
@@ -27,10 +28,12 @@ int newCmd() {
   if (newLine == "test1") {
     // bug exists in the commented testline; the boost/tokenizer class wont recognize \\\" in a quote.
     // but as long as there's no multiple \"s in a quote, it will function well.
-    newLine = "cp \"/bin/bash\" \"/bin/bash# This Part is a\\ # inside a quote\"; echo \"Hello World\" #This is a real quote ";
+    newLine = "echo \"/bin/bash\" \"/bin/bash# This Part is a\\ # inside a quote\"; echo \"Hello World\" #This is a real quote ";
     //newLine = "cp \"/bin/bash\" \"/bin/bash# This Part is a\\\" # inside a quote\"; echo \"Hello World\" #This is a real quote ";
   } else if (newLine == "test2") {
-    newLine = "ls -a; echo hello velt && mkdir test || echo world; git status; exit; ls -l";
+    newLine = "ls -a; echo hallo welt && mkdir test || echo world; git status; exit; ls -l";
+  } else if (newLine == "test3") {
+    newLine = "ls& ls&& ls&&& ls & ls && ls &&& ls &ls&&ls&&&ls";
   }
 
   cmd cmd1(newLine);
@@ -46,8 +49,9 @@ int newCmd() {
 
 int main(int argc, char *argv[]) {
   init();
-  while (newCmd() != -1) { // loop until user enter "exit"
-  };
+  while (1) {
+    newCmd();
+  }
   cout << "\n\n"; // kind of... clear the screen
   return 0;
 }
