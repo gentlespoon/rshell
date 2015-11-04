@@ -27,9 +27,8 @@ protected:
   string cmdLine;
   vector<s_cmd> cmdList;
 public:
-
   string removeComment() {
-    if (DEV) cout << "\n======= Start Remove Comment =======\n[Raw Line] " << cmdLine << endl;
+    if (V) cout << "\n======= Start Remove Comment =======\n[Raw Line] " << cmdLine << endl;
     bool isInQuote = false;
 
     // Finished Quotation and Comments
@@ -39,48 +38,186 @@ public:
       
       // Dealing with "" quotes
       if (cmdLine.at(index) == '\"') {
-        if (DEV) cout << "\" found at position " << index;
+        if (V) cout << "\" found at position " << index;
         if ((index == 0) || (cmdLine.at(index-1) != '\\')) {
-          if (DEV) cout << " This is a real quotation mark.\n";
+          if (V) cout << " This is a real quotation mark.\n";
           isInQuote = !isInQuote;
-          if (DEV) cout << "[isInQuote] " << isInQuote << endl;
+          if (V) cout << "[isInQuote] " << isInQuote << endl;
         }
         else {
           if (isInQuote) {
-            if (DEV) cout << " This is a slashed quotation mark in a quote.\n";
+            if (V) cout << " This is a slashed quotation mark in a quote.\n";
           }
           else {
             cout << "\n** WARNING: There might be a slashed quotation mark outside a quote!\n";
           }
-          if (DEV) cout << "[isInQuote] " << isInQuote << endl;
+          if (V) cout << "[isInQuote] " << isInQuote << endl;
         }
       }
 
       // Dealing with # comments
       if (cmdLine.at(index) == '#') {
-        if (DEV) cout << "# found at position " << index;
+        if (V) cout << "# found at position " << index;
         if (isInQuote) {
-          if (DEV) cout << ", however this # is in a Quote. Ignored.\n";
+          if (V) cout << ", however this # is in a Quote. Ignored.\n";
         }
         else {
-          if (DEV) cout << ", wow we found a comment!\n";
+          if (V) cout << ", wow we found a comment!\n";
           cmdLine = cmdLine.substr(0, index);
           break;
         }
       }
     }
-    
+
     // Finished Remove Comment
     if (isInQuote) { // if when the line ends we are still in a quote
       cout << "\n** WARNING: The line ends in a quote. \" expected.\n";
     }
 
-    if (DEV) cout << "[Out Line] " << cmdLine << "\n======== End Remove Comment ========\n";
+    if (V) cout << "[Out Line] " << cmdLine << "\n======== End Remove Comment ========\n";
     return cmdLine;
   }
 
+  vector<s_cmd> parseCmd(string delim) {
+    vector<s_cmd> p_cmdList;
+    if (V) cout << "\n======= Start Parsing for " << delim << " =======\n";
+    // split delim into characters
+    vector<char> delim_char;
+    for (unsigned i = 0; i < delim.length(); i++) {
+      delim_char.push_back(delim.at(i));
+      // if (V) cout << "\n[delim = " << delim << " ] delim_char[" << i << "] = " << delim_char.at(i);
+    }
+    // if parsing the first time, initialize cmdList
+    if (cmdList.size() == 0) {
+      s_cmd s_cmd1(";", "", cmdLine);
+      cmdList.push_back(s_cmd1);
+    }
+    string trimmed;
+    string file;
+    string argv;
+    unsigned space;
+    for (unsigned i = 0; i < cmdList.size(); i++) { // start parsing first line of cmdList
+      string currexec = cmdList.at(i).exec;
+      bool isHead = true;
+      bool isInQuote = false;
+      for (unsigned j = 0; j < cmdList.at(i).argv.length(); j++) { // scan thru all characters in cmdList[1].argv
+        if (cmdList.at(i).argv.at(j) == '\"') {
+          if (V) cout << "\" found at position " << j;
+          if ((j == 0) || (cmdLine.at(j-1) != '\\')) {
+            if (V) cout << " This is a real quotation mark. ";
+            isInQuote = !isInQuote;
+          }
+          else {
+            if (isInQuote) {
+              if (V) cout << " This is a slashed quotation mark in a quote. ";
+            }
+            else {
+              cout << "\n** WARNING: There might be a slashed quotation mark outside a quote!" << endl;
+            }
+          }
+          if (V) cout << "[isInQuote]=" << isInQuote << endl;
+        } else if ((!isInQuote) && (cmdList.at(i).argv.at(j) == delim_char.at(0))) { // match the first delim char
+          // check the char to the front of the matched delim to make sure it is not an escaped char.
+          unsigned jprev = j;
+          if (jprev != 0) { jprev -= 1; }
+          if (V) {
+            cout << "\n\ndelim_char[0] found! Checking previous char.";
+            cout << "\n" << cmdList.at(i).argv << endl;
+            for (unsigned l = 0; l < (jprev); l++) {
+              cout << " ";
+            }
+            cout << "^^" << endl;
+          }
+          if (cmdList.at(i).argv.at(jprev) != '\\') {
+            // if first char matches
+            bool match = true;
+            if (V) cout << "\n\nThis is a good delim. delim_char[0] found! Start delim paring.";
+            for (unsigned k = 0; k < delim_char.size(); k++) {
+              if (cmdList.at(i).argv.at(j+k) == delim_char.at(k)) { // if the following delim char matches
+                if (V) {
+                  cout << "\n[===== i=" << i << " j=" << j << " k=" << k << " =====]";
+                  cout << "\n" << cmdList.at(i).argv << endl;
+                  for (unsigned l = 0; l < (j+k); l++) {
+                    cout << " ";
+                  }
+                  cout << "^\nMatch: \"" << cmdList.at(i).argv.at(j+k) << "\" == \"" << delim_char.at(k) << "\"\n";
+                  
+                }
+              } else { // if the following char does not match
+                if (V) {
+                  cout << "\n" << cmdList.at(i).argv << endl;
+                  for (unsigned l = 0; l < j+k; l++) {
+                    cout << " ";
+                  }
+                  cout << "^\nDoes not match: \"" << cmdList.at(i).argv.at(j+k) << "\" != \"" << delim_char.at(k) << "\"\n";
+                }
+                match = false;
+                break; // does not match, break the loop
+              }
+            }
+            if (match) {
+            if (V) cout << "\n!! We got a " << delim << "! Constructing new command";
+              // separate commands here;
+              // relation with former cmd
+              if (isHead) {
+                isHead = false;
+              } else {
+                currexec = delim;
+              }
+              // filename
+              trimmed = cmdList.at(i).argv.substr(0, j);
+              trim(trimmed);
+              // if (V) cout << "\ntrimmed = " << trimmed;
+              cmdList.at(i).argv = cmdList.at(i).argv.substr(j+delim.length());
+              trim(cmdList.at(i).argv);
+              // if (V) cout << "\ncmdList.at(" << i << ").argv = " << cmdList.at(i).argv;
+              j = -1; // end of loop will add 1 to make it 0
+              space = trimmed.find(' ');
+              file = trimmed.substr(0, space);
+              // if (V) cout << "\nfile = " << file;
+              argv = trimmed;
+              s_cmd s_cmd2(currexec, file, argv);
+              p_cmdList.push_back(s_cmd2);
+              if (V) cout << "\n[" << s_cmd2.exec << "] [" << s_cmd2.file << "] [" << s_cmd2.argv << "]";
+              // separate commands here;
+            }
+          } else { // if the first char matches but it is an escaped char
+            if (V) cout << " This is an escaped delimiter" << endl;
+          }
+        } else { // if first char does not match.
+        }
+      }
+      //looped to last character and no more delim found
+      //      push the last part of stuff into p_cmdList();
+      if (isHead) {
+        isHead = false;
+      } else {
+        currexec = delim;
+      }
+      // filename
+      trimmed = cmdList.at(i).argv;
+      trim(trimmed);
+      // if (V) cout << "trimmed = " << trimmed;
+      space = trimmed.find(' ');
+      file = trimmed.substr(0, space);
+      // if (V) cout << "\nfile = " << file;
+      argv = trimmed;
+      s_cmd s_cmd3(currexec, file, argv);
+      p_cmdList.push_back(s_cmd3);
+      if (V) cout << "\n[" << s_cmd3.exec << "] [" << s_cmd3.file << "] [" << s_cmd3.argv << "]";
+    }
 
+    cmdList = p_cmdList;
+    if (V) cout << "\n======== End Parsing for " << delim << " ========\n";
+    if (V) printlist();
+    return p_cmdList;
+  }
 
+/* 
+  // parse with tokenizer class.
+  // with bug [echo "Hello && World" will be separated to two commands.]
+  // no perfect but this is the way instructor suggests
+  // use as a fallback if any future problems occured in the char by char parsing function.
 
   vector<s_cmd> parseCmd(string delim) {
     // if parsing the first time, initialize cmdList
@@ -92,12 +229,12 @@ public:
     string file;
     string argv;
     unsigned space;
-    if (DEV) cout << "\n======= Start Parsing for " << delim << " =======\n";
+    if (V) cout << "\n======= Start Parsing for " << delim << " =======\n";
     vector<s_cmd> p_cmdList;
     for (unsigned i = 0; i < cmdList.size(); i++) {
       string currexec = cmdList.at(i).exec;
       bool isHead = true;
-      escaped_list_separator<char> els(/*escape*/"\\", /*separator*/delim, /*quote*/"\"");
+      escaped_list_separator<char> els("\\", delim, "\"");
       tokenizer<escaped_list_separator<char> > tok(cmdList.at(i).argv, els);
       for(tokenizer<escaped_list_separator<char> >::iterator beg=tok.begin(); beg!=tok.end(); ++beg){
         if (*beg != "") {
@@ -111,38 +248,36 @@ public:
           argv = trimmed;
           s_cmd s_cmd2(currexec, file, argv);
           p_cmdList.push_back(s_cmd2);
-          if (DEV) cout << "[" << s_cmd2.exec << "] [" << s_cmd2.file << "] [" << s_cmd2.argv << "]\n";
+          if (V) cout << "[" << s_cmd2.exec << "] [" << s_cmd2.file << "] [" << s_cmd2.argv << "]\n";
           isHead = false;
         }
       }
     }
-
     cmdList = p_cmdList;
-    if (DEV) cout << "======== End Parsing for " << delim << " ========\n";
+    if (V) cout << "======== End Parsing for " << delim << " ========\n";
     return p_cmdList;
   }
+*/
 
 
   vector<s_cmd> trimCmd() {
-    if (DEV) cout << "\n======= start trimCmd =======\n";
+    if (V) cout << "\n======= start trimCmd =======\n";
     for (unsigned i = 0; i< cmdList.size(); i++) {
       if (cmdList.at(i).argv == cmdList.at(i).file) {
         cmdList.at(i).argv = "";
       }
       cmdList.at(i).argv = cmdList.at(i).argv.substr(cmdList.at(i).argv.find(' ')+1);
-      if (DEV) printlist();
-      if (DEV) cout << "======== end trimCmd ========\n";
     }
+    if (V) printlist();
+    if (V) cout << "======== end trimCmd ========\n";
     return cmdList;
   }
 
   cmd (string newLine) {
     cmdLine = newLine;
   }
-
   ~cmd () {
   }
-
   void printline() {
     cout << this->cmdLine<< endl;
   }
@@ -271,16 +406,15 @@ public:
 
   //forking into parent and child processes in order to execute
   //passed in parse command
-  bool exec(string file, string argv)
-  {
+  bool exec(string file, string argv) {
     // handle rshell built-in commands;
-    if (file == "debug") {
+    if (file == "verbose") {
       if ((argv == "on") || argv == "1") {
-        DEV = true;
-        cout << "Debug output is now turned on.\nToggle: debug [on|off]" << endl;
+        V = true;
+        cout << "Verbose output is now turned on.\nToggle: verbose [on|off]" << endl;
       } else {
-        DEV = false;
-        cout << "Debug output is now turned off.\nToggle: debug [on|off]" << endl;
+        V = false;
+        cout << "Verbose output is now turned off.\nToggle: verbose [on|off]" << endl;
       }
       return true;
     }

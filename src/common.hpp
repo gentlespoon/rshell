@@ -14,11 +14,22 @@
 #include <vector>
 #include <sys/wait.h>
 
-bool DEV = false;
-// global debug output control added.
-// can be switched by "$ debug [on|off]" in runtime
+using namespace std;
 
 std::string version = "20151029 exec";
+bool V = false;
+// global verbose output control added.
+// can be switched by "$ verbose [on|off]" in runtime
+
+char c_black[] = { 0x1b, '[', '0', ';', '3', '0', 'm', 0 };
+char c_red[] = { 0x1b, '[', '0', ';', '3', '1', 'm', 0 };
+char c_green[] = { 0x1b, '[', '0', ';', '3', '2', 'm', 0 };
+char c_yellow[] = { 0x1b, '[', '1', ';', '3', '3', 'm', 0 };
+char c_blue[] = { 0x1b, '[', '0', ';', '3', '4', 'm', 0 };
+char c_purple[] = { 0x1b, '[', '0', ';', '3', '5', 'm', 0 };
+char c_cyan[] = { 0x1b, '[', '0', ';', '3', '6', 'm', 0 };
+char c_white[] = { 0x1b, '[', '0', ';', '3', '7', 'm', 0 };
+char c_reset[] = { 0x1b, '[', '0', ';', '3', '9', 'm', 0 };
 
 
 #endif
