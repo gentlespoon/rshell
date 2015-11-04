@@ -2,6 +2,7 @@
 #define _pc_cc_
 
 #include "common.hpp"
+#include "verbose.hpp"
 
 using namespace std;
 using namespace boost;
@@ -34,11 +35,12 @@ public:
     // Finished Quotation and Comments
     // ====== bug exist ======
     // For addresses that use \ instead of / (e.g. Windows), the program may mess up with escape characters
-    for (unsigned index = 0; index < cmdLine.length(); index++) {
+    for (size_t index = 0; index < cmdLine.length(); index++) {
       
       // Dealing with "" quotes
       if (cmdLine.at(index) == '\"') {
         if (V) cout << "\" found at position " << index;
+        cout << vout(cmdLine, index);
         if ((index == 0) || (cmdLine.at(index-1) != '\\')) {
           if (V) cout << " This is a real quotation mark.\n";
           isInQuote = !isInQuote;
@@ -58,10 +60,12 @@ public:
       // Dealing with # comments
       if (cmdLine.at(index) == '#') {
         if (V) cout << "# found at position " << index;
+        cout << vout(cmdLine, index);
         if (isInQuote) {
           if (V) cout << ", however this # is in a Quote. Ignored.\n";
         }
         else {
+          cout << vout(cmdLine, index);
           if (V) cout << ", wow we found a comment!\n";
           cmdLine = cmdLine.substr(0, index);
           break;
@@ -83,7 +87,7 @@ public:
     if (V) cout << "\n======= Start Parsing for " << delim << " =======\n";
     // split delim into characters
     vector<char> delim_char;
-    for (unsigned i = 0; i < delim.length(); i++) {
+    for (size_t i = 0; i < delim.length(); i++) {
       delim_char.push_back(delim.at(i));
       // if (V) cout << "\n[delim = " << delim << " ] delim_char[" << i << "] = " << delim_char.at(i);
     }
@@ -95,14 +99,15 @@ public:
     string trimmed;
     string file;
     string argv;
-    unsigned space;
-    for (unsigned i = 0; i < cmdList.size(); i++) { // start parsing first line of cmdList
+    size_t space;
+    for (size_t i = 0; i < cmdList.size(); i++) { // start parsing first line of cmdList
       string currexec = cmdList.at(i).exec;
       bool isHead = true;
       bool isInQuote = false;
-      for (unsigned j = 0; j < cmdList.at(i).argv.length(); j++) { // scan thru all characters in cmdList[1].argv
+      for (size_t j = 0; j < cmdList.at(i).argv.length(); j++) { // scan thru all characters in cmdList[1].argv
         if (cmdList.at(i).argv.at(j) == '\"') {
           if (V) cout << "\" found at position " << j;
+          cout << vout(cmdList.at(i).argv, j);
           if ((j == 0) || (cmdLine.at(j-1) != '\\')) {
             if (V) cout << " This is a real quotation mark. ";
             isInQuote = !isInQuote;
@@ -118,38 +123,43 @@ public:
           if (V) cout << "[isInQuote]=" << isInQuote << endl;
         } else if ((!isInQuote) && (cmdList.at(i).argv.at(j) == delim_char.at(0))) { // match the first delim char
           // check the char to the front of the matched delim to make sure it is not an escaped char.
-          unsigned jprev = j;
+          size_t jprev = j;
           if (jprev != 0) { jprev -= 1; }
           if (V) {
-            cout << "\n\ndelim_char[0] found! Checking previous char.";
-            cout << "\n" << cmdList.at(i).argv << endl;
-            for (unsigned l = 0; l < (jprev); l++) {
-              cout << " ";
-            }
-            cout << "^^" << endl;
+            cout << vout(cmdList.at(i).argv, j);
+            cout << "\ndelim_char[0] found! Checking previous char.";
+            // cout << "\n" << cmdList.at(i).argv << endl;
+            // for (size_t l = 0; l < (jprev); l++) {
+            //   cout << " ";
+            // }
+            // cout << "^^" << endl;
           }
           if (cmdList.at(i).argv.at(jprev) != '\\') {
             // if first char matches
             bool match = true;
-            if (V) cout << "\n\nThis is a good delim. delim_char[0] found! Start delim paring.";
-            for (unsigned k = 0; k < delim_char.size(); k++) {
+            if (V) cout << "\nThis is a good delim_char[0]! Start delim matching.";
+            for (size_t k = 0; k < delim_char.size(); k++) {
               if (cmdList.at(i).argv.at(j+k) == delim_char.at(k)) { // if the following delim char matches
                 if (V) {
-                  cout << "\n[===== i=" << i << " j=" << j << " k=" << k << " =====]";
-                  cout << "\n" << cmdList.at(i).argv << endl;
-                  for (unsigned l = 0; l < (j+k); l++) {
-                    cout << " ";
-                  }
-                  cout << "^\nMatch: \"" << cmdList.at(i).argv.at(j+k) << "\" == \"" << delim_char.at(k) << "\"\n";
+                  cout << vout(cmdList.at(i).argv, j+k);
+                  // cout << "\n[===== i=" << i << " j=" << j << " k=" << k << " =====]";
+                  // cout << "\n" << cmdList.at(i).argv << endl;
+                  // for (size_t l = 0; l < (j+k); l++) {
+                  //   cout << " ";
+                  // }
+                  // cout << "^";
+                  cout <<"\nMatch: \"" << cmdList.at(i).argv.at(j+k) << "\" == \"" << delim_char.at(k) << "\"\n";
                   
                 }
               } else { // if the following char does not match
                 if (V) {
-                  cout << "\n" << cmdList.at(i).argv << endl;
-                  for (unsigned l = 0; l < j+k; l++) {
-                    cout << " ";
-                  }
-                  cout << "^\nDoes not match: \"" << cmdList.at(i).argv.at(j+k) << "\" != \"" << delim_char.at(k) << "\"\n";
+                  cout << vout(cmdList.at(i).argv, j+k);
+                  // cout << "\n" << cmdList.at(i).argv << endl;
+                  // for (size_t l = 0; l < j+k; l++) {
+                  //   cout << " ";
+                  // }
+                  // cout << "^";
+                  cout << "\nDoes not match: \"" << cmdList.at(i).argv.at(j+k) << "\" != \"" << delim_char.at(k) << "\"\n";
                 }
                 match = false;
                 break; // does not match, break the loop
@@ -228,10 +238,10 @@ public:
     string trimmed;
     string file;
     string argv;
-    unsigned space;
+    size_t space;
     if (V) cout << "\n======= Start Parsing for " << delim << " =======\n";
     vector<s_cmd> p_cmdList;
-    for (unsigned i = 0; i < cmdList.size(); i++) {
+    for (size_t i = 0; i < cmdList.size(); i++) {
       string currexec = cmdList.at(i).exec;
       bool isHead = true;
       escaped_list_separator<char> els("\\", delim, "\"");
@@ -262,7 +272,7 @@ public:
 
   vector<s_cmd> trimCmd() {
     if (V) cout << "\n======= start trimCmd =======\n";
-    for (unsigned i = 0; i< cmdList.size(); i++) {
+    for (size_t i = 0; i< cmdList.size(); i++) {
       if (cmdList.at(i).argv == cmdList.at(i).file) {
         cmdList.at(i).argv = "";
       }
@@ -282,7 +292,7 @@ public:
     cout << this->cmdLine<< endl;
   }
   void printlist() {
-    for (unsigned i = 0; i < cmdList.size(); i++) {
+    for (size_t i = 0; i < cmdList.size(); i++) {
       cout << "[" << cmdList.at(i).exec << "] [" << cmdList.at(i).file << "] [" << cmdList.at(i).argv << "]\n";
     }
   }
@@ -294,7 +304,7 @@ public:
     bool previousStatus = true;
     bool runCurrentCommand = true;
     
-    for (unsigned int i = 0; i < cmdList.size(); i++)
+    for (size_t int i = 0; i < cmdList.size(); i++)
     {
       if (cmdList.at(i).exec == ";")
       {
@@ -377,7 +387,7 @@ public:
     bool previousStatus = true;
     bool runCurrentCommand = true;
     
-    for (unsigned int i = 0; i < cmdList.size(); i++) {
+    for (size_t i = 0; i < cmdList.size(); i++) {
       if (cmdList.at(i).exec == ";") {
         runCurrentCommand = true;
       } else if (cmdList.at(i).exec == "&&") {

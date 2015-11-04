@@ -8,7 +8,8 @@ using namespace std;
   char host[999] = "localhost";
 
 void init() {
-  cout << "\n\n rShell [Version " << version << "]\n\nEnter \"debug on\" to turn on debug output.\n\n";
+  cout << c_bold << "\n\nrShell [Version " << version << "]";
+  cout << "\n\nUse \"verbose [on|off]\" to toggle verbose output.\n\n" << c_reset;
   // Unix get userinfo
   user = getlogin();
   gethostname(host, 999);
@@ -17,7 +18,7 @@ void init() {
 int newCmd() {
 
   // to distinguish with system shell I used "R$" instead of "$"
-  cout << "\n" << c_blue << "[" << user << "@" << host << "] R$ " << c_reset;
+  cout << "\n" << c_prompt << "[" << user << "@" << host << "] R$ " << c_reset;
   // GET USER INPUT
   string newLine;
   getline(cin, newLine);
