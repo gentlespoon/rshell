@@ -25,16 +25,24 @@ int newCmd() {
     return 0;// if empty line
   } 
   // override for testing
+  bool test = false;
   if (newLine == "test1") {
     // bug exists in the commented testline; the boost/tokenizer class wont recognize \\\" in a quote.
     // but as long as there's no multiple \"s in a quote, it will function well.
     newLine = "echo \"/bin/bash\" \"/bin/bash# This Part is a\\ # inside a quote\"; echo \"Hello World\" #This is a real quote ";
+    test = true;
     //newLine = "cp \"/bin/bash\" \"/bin/bash# This Part is a\\\" # inside a quote\"; echo \"Hello World\" #This is a real quote ";
   } else if (newLine == "test2") {
     newLine = "ls -a; echo hallo welt && mkdir test || echo world; git status; exit; ls -l";
+    test = true;
   } else if (newLine == "test3") {
     newLine = "ls& ls&& ls&&& ls & ls && ls &&& ls &ls&&ls&&&ls";
+    test = true;
+  } else if (newLine == "test4") {
+    newLine = "echo \"Hello && echo World\" && ls";
+    test = true;
   }
+  if (test) { cout << "\nTesting stdin override << " << newLine << endl ; }
 
   cmd cmd1(newLine);
   cmd1.removeComment();

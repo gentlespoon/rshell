@@ -7,7 +7,7 @@
 #include <boost/algorithm/string.hpp>
 #include <stdio.h>
 #include <iostream>
-// #include <boost/tokenizer.hpp>
+#include <boost/tokenizer.hpp>
 #include <unistd.h>
 #include <vector>
 #include <stddef.h>
@@ -16,9 +16,9 @@
 
 using namespace std;
 
-bool DEV = false;
-// global debug output control added.
-// can be switched by "$ debug [on|off]" in runtime
+bool V = false;
+// global verbose output control added.
+// can be switched by "$ verbose [on|off]" in runtime
 
 int version = 20151102;
 
