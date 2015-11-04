@@ -36,9 +36,9 @@ string vout(string str, size_t loc) {
     oss << endl << vblk << str;
     for (size_t i = l; i < w+1; i++) oss << " ";
     oss << vblk << endl << vblk;
-    for (size_t i = 0; i < loc; i++) oss << " ";
+    for (size_t i = 0; i < loc; i++) oss << "_";
     oss << "^";
-    for (size_t i = loc; i < w; i++) oss << " ";
+    for (size_t i = loc; i < w; i++) oss << "_";
     oss << vblk << endl;
     for (size_t i = 0; i < w+3; i++) oss << blk;
     oss << endl;

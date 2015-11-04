@@ -1,0 +1,283 @@
+Script started on Wed 04 Nov 2015 03:46:08 PM PST
+[asong011@hammer rshell]$ bin/rshell
+
+
+rShell [Version 20151103 exec]
+
+Use "verbose [on|off]" to toggle verbose output.
+
+
+[asong011@hammer.cs.ucr.edu] R$ verbose on
+Verbose output is now turned on.
+Toggle: verbose [on|off]
+
+
+
+=================== EXECUTE END ===================
+Command 0 executed. Success? 1
+
+[asong011@hammer.cs.ucr.edu] R$ echo "Hello || echo \"World\" #COMMENT?NO" && ls -l #COMMENT?YES
+
+======= Start Remove Comment =======
+[Raw Line] echo "Hello || echo \"World\" #COMMENT?NO" && ls -l #COMMENT?YES
+
+" found at position 5
+-------------------------------------------------------------------
+|echo "Hello || echo \"World\" #COMMENT?NO" && ls -l #COMMENT?YES |
+|_____^___________________________________________________________|
+-------------------------------------------------------------------
+ This is a real quotation mark.
+[isInQuote] 1
+
+" found at position 21
+-------------------------------------------------------------------
+|echo "Hello || echo \"World\" #COMMENT?NO" && ls -l #COMMENT?YES |
+|_____________________^___________________________________________|
+-------------------------------------------------------------------
+ This is a slashed quotation mark in a quote.[isInQuote] 1
+
+" found at position 28
+-------------------------------------------------------------------
+|echo "Hello || echo \"World\" #COMMENT?NO" && ls -l #COMMENT?YES |
+|____________________________^____________________________________|
+-------------------------------------------------------------------
+ This is a slashed quotation mark in a quote.[isInQuote] 1
+
+# found at position 30
+-------------------------------------------------------------------
+|echo "Hello || echo \"World\" #COMMENT?NO" && ls -l #COMMENT?YES |
+|______________________________^__________________________________|
+-------------------------------------------------------------------
+, however this # is in a Quote. Ignored.
+" found at position 41
+-------------------------------------------------------------------
+|echo "Hello || echo \"World\" #COMMENT?NO" && ls -l #COMMENT?YES |
+|_________________________________________^_______________________|
+-------------------------------------------------------------------
+ This is a real quotation mark.
+[isInQuote] 0
+
+# found at position 52
+-------------------------------------------------------------------
+|echo "Hello || echo \"World\" #COMMENT?NO" && ls -l #COMMENT?YES |
+|____________________________________________________^____________|
+-------------------------------------------------------------------
+, wow we found a comment!
+[Out Line] echo "Hello || echo \"World\" #COMMENT?NO" && ls -l
+======== End Remove Comment ========
+
+======= Start Parsing for ; =======
+" found at position 5
+-------------------------------------------------------
+|echo "Hello || echo \"World\" #COMMENT?NO" && ls -l  |
+|_____^_______________________________________________|
+-------------------------------------------------------
+ This is a real quotation mark. [isInQuote]=1
+" found at position 21
+-------------------------------------------------------
+|echo "Hello || echo \"World\" #COMMENT?NO" && ls -l  |
+|_____________________^_______________________________|
+-------------------------------------------------------
+ This is a slashed quotation mark in a quote. [isInQuote]=1
+" found at position 28
+-------------------------------------------------------
+|echo "Hello || echo \"World\" #COMMENT?NO" && ls -l  |
+|____________________________^________________________|
+-------------------------------------------------------
+ This is a slashed quotation mark in a quote. [isInQuote]=1
+" found at position 41
+-------------------------------------------------------
+|echo "Hello || echo \"World\" #COMMENT?NO" && ls -l  |
+|_________________________________________^___________|
+-------------------------------------------------------
+ This is a real quotation mark. [isInQuote]=0
+[;] [echo] [echo "Hello || echo \"World\" #COMMENT?NO" && ls -l]
+======== End Parsing for ; ========
+
+======= Start Parsing for && =======
+" found at position 5
+------------------------------------------------------
+|echo "Hello || echo \"World\" #COMMENT?NO" && ls -l |
+|_____^______________________________________________|
+------------------------------------------------------
+ This is a real quotation mark. [isInQuote]=1
+" found at position 21
+------------------------------------------------------
+|echo "Hello || echo \"World\" #COMMENT?NO" && ls -l |
+|_____________________^______________________________|
+------------------------------------------------------
+ This is a slashed quotation mark in a quote. [isInQuote]=1
+" found at position 28
+------------------------------------------------------
+|echo "Hello || echo \"World\" #COMMENT?NO" && ls -l |
+|____________________________^_______________________|
+------------------------------------------------------
+ This is a slashed quotation mark in a quote. [isInQuote]=1
+" found at position 41
+------------------------------------------------------
+|echo "Hello || echo \"World\" #COMMENT?NO" && ls -l |
+|_________________________________________^__________|
+------------------------------------------------------
+ This is a real quotation mark. [isInQuote]=0
+------------------------------------------------------
+|echo "Hello || echo \"World\" #COMMENT?NO" && ls -l |
+|___________________________________________^________|
+------------------------------------------------------
+
+delim_char[0] found! Checking previous char.
+This delim_char[0] is not escaped! Start delim matching.
+------------------------------------------------------
+|echo "Hello || echo \"World\" #COMMENT?NO" && ls -l |
+|___________________________________________^________|
+------------------------------------------------------
+Match: "&" == "&"
+------------------------------------------------------
+|echo "Hello || echo \"World\" #COMMENT?NO" && ls -l |
+|____________________________________________^_______|
+------------------------------------------------------
+Match: "&" == "&"
+!! We got a &&! Constructing new command
+
+[;] [echo] [echo "Hello || echo \"World\" #COMMENT?NO"]
+[&&] [ls] [ls -l]
+======== End Parsing for && ========
+
+======= Start Parsing for || =======
+" found at position 5
+---------------------------------------------
+|echo "Hello || echo \"World\" #COMMENT?NO" |
+|_____^_____________________________________|
+---------------------------------------------
+ This is a real quotation mark. [isInQuote]=1
+" found at position 21
+---------------------------------------------
+|echo "Hello || echo \"World\" #COMMENT?NO" |
+|_____________________^_____________________|
+---------------------------------------------
+ This is a slashed quotation mark in a quote. [isInQuote]=1
+" found at position 28
+---------------------------------------------
+|echo "Hello || echo \"World\" #COMMENT?NO" |
+|____________________________^______________|
+---------------------------------------------
+ This is a slashed quotation mark in a quote. [isInQuote]=1
+" found at position 41
+---------------------------------------------
+|echo "Hello || echo \"World\" #COMMENT?NO" |
+|_________________________________________^_|
+---------------------------------------------
+ This is a real quotation mark. [isInQuote]=0
+[;] [echo] [echo "Hello || echo \"World\" #COMMENT?NO"]
+[&&] [ls] [ls -l]
+======== End Parsing for || ========
+
+======= start trimCmd =======
+[;] [echo] ["Hello || echo \"World\" #COMMENT?NO"]
+[&&] [ls] [-l]
+======== end trimCmd ========
+
+
+
+==================================
+=======generateExecCommand========
+==================================
+
+We have 2 commands, now executing command 1
+[;] [echo] ["Hello || echo \"World\" #COMMENT?NO"]
+First we check the exec bit: ;
+Okay, run anyway.
+So now we decided to execute this command.
+================== EXECUTE START ==================
+
+
+"Hello || echo \"World\" #COMMENT?NO"
+
+
+
+=================== EXECUTE END ===================
+Command 0 executed. Success? 1
+
+We have 2 commands, now executing command 2
+[&&] [ls] [-l]
+First we check the exec bit: &&
+Let's see if our previous command executed successfully:
+true. Execute this command.
+So now we decided to execute this command.
+================== EXECUTE START ==================
+
+
+total 48
+drwxr-xr-x 2 asong011 csmajs  4096 Nov	4 15:43 bin
+-rw-r--r-- 1 asong011 csmajs 18047 Oct 24 12:54 LICENSE
+-rw-r--r-- 1 asong011 csmajs   198 Oct 28 22:49 Makefile
+-rw-r--r-- 1 asong011 csmajs   827 Nov	4 15:39 README.md
+-rw-r--r-- 1 asong011 csmajs  8192 Nov	4 15:47 record
+drwxr-xr-x 2 asong011 csmajs  4096 Nov	4 11:33 src
+drwxr-xr-x 2 asong011 csmajs  4096 Nov	4 13:47 tests
+
+
+
+=================== EXECUTE END ===================
+Command 1 executed. Success? 1
+
+[asong011@hammer.cs.ucr.edu] R$ verbose off
+
+======= Start Remove Comment =======
+[Raw Line] verbose off
+[Out Line] verbose off
+======== End Remove Comment ========
+
+======= Start Parsing for ; =======
+[;] [verbose] [verbose off]
+======== End Parsing for ; ========
+
+======= Start Parsing for && =======
+[;] [verbose] [verbose off]
+======== End Parsing for && ========
+
+======= Start Parsing for || =======
+[;] [verbose] [verbose off]
+======== End Parsing for || ========
+
+======= start trimCmd =======
+[;] [verbose] [off]
+======== end trimCmd ========
+
+
+
+==================================
+=======generateExecCommand========
+==================================
+
+We have 1 commands, now executing command 1
+[;] [verbose] [off]
+First we check the exec bit: ;
+Okay, run anyway.
+So now we decided to execute this command.
+================== EXECUTE START ==================
+
+
+Verbose output is now turned off.
+Toggle: verbose [on|off]
+
+[asong011@hammer.cs.ucr.edu] R$ echo "This command does not have a closing quotation mark
+
+** WARNING: The line ends in a quote. " expected.
+"This command does not have a closing quotation mark
+
+[asong011@hammer.cs.ucr.edu] R$ echo \"This command has a slashed quotation mark outside "a quote"
+
+** WARNING: There might be a slashed quotation mark outside a quote!
+
+** WARNING: There might be a slashed quotation mark outside a quote!
+
+** WARNING: There might be a slashed quotation mark outside a quote!
+
+** WARNING: There might be a slashed quotation mark outside a quote!
+\"This command has a slashed quotation mark outside "a quote"
+
+[asong011@hammer.cs.ucr.edu] R$ exit
+[asong011@hammer rshell]$ exit
+exit
+
+Script done on Wed 04 Nov 2015 03:49:00 PM PST

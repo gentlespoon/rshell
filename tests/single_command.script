@@ -1,100 +1,52 @@
-Script started on Wed 28 Oct 2015 10:59:44 PM PDT
-]0;asong011@hammer:~/Desktop/CS-100/assn/assn1/rshell[?1034h[asong011@hammer rshell]$ make && ./bin/rshell
-g++ -Wall -Werror -ansi -pedantic src/main.cpp -o bin/rshell
+Script started on Wed 04 Nov 2015 12:14:19 PM PST
+[asong011@hammer rshell]$ bin/rshelll
 
 
-rShell [Version 20151026]
+rShell [Version 20151103 exec]
 
-[asong011@hammer.cs.ucr.edu] R$ # tests single s command
+Use "verbose [on|off]" to toggle verbose output.
+
 
 [asong011@hammer.cs.ucr.edu] R$ ls
 bin  LICENSE  Makefile	README.md  single_command.script  src  tests
 
 [asong011@hammer.cs.ucr.edu] R$ ls -a
-.  ..  bin  LICENSE  Makefile  README.md  single_command.script  src  tests
+.  ..  bin  LICENSE  Makefile  README.md  single_command.script	 src  tests
 
 [asong011@hammer.cs.ucr.edu] R$ ls -l
 total 40
-drwxr-xr-x 2 asong011 csmajs  4096 Oct 28 22:59 bin
+drwxr-xr-x 2 asong011 csmajs  4096 Nov	4 12:11 bin
 -rw-r--r-- 1 asong011 csmajs 18047 Oct 24 12:54 LICENSE
 -rw-r--r-- 1 asong011 csmajs   198 Oct 28 22:49 Makefile
--rw-r--r-- 1 asong011 csmajs     9 Oct 24 12:54 README.md
--rw-r--r-- 1 asong011 csmajs     0 Oct 28 22:59 single_command.script
-drwxr-xr-x 2 asong011 csmajs  4096 Oct 26 17:48 src
-drwxr-xr-x 2 asong011 csmajs  4096 Oct 28 22:55 tests
+-rw-r--r-- 1 asong011 csmajs	 9 Oct 24 12:54 README.md
+-rw-r--r-- 1 asong011 csmajs	 0 Nov	4 12:14 single_command.script
+drwxr-xr-x 2 asong011 csmajs  4096 Nov	4 11:33 src
+drwxr-xr-x 2 asong011 csmajs  4096 Nov	4 12:10 tests
+
+[asong011@hammer.cs.ucr.edu] R$ echo hello
+hello
 
 [asong011@hammer.cs.ucr.edu] R$ echo hello world
 hello world
 
 [asong011@hammer.cs.ucr.edu] R$ echo "hello world"
-hello world
-
-[asong011@hammer.cs.ucr.edu] R$ echo "hello world
-
-** WARNING: The line ends in a quote. " expected.
-hello world
-
-[asong011@hammer.cs.ucr.edu] R$ echo hello world\
-hello world\
-
-[asong011@hammer.cs.ucr.edu] R$ ./bin/rshell #enter the second level of rshell
-
-
-rShell [Version 20151026]
-
-[asong011@hammer.cs.ucr.edu] R$ # This is the second rshell in the first rshell
-
-[asong011@hammer.cs.ucr.edu] R$ echo 1 2 3
-1 2 3
-
-[asong011@hammer.cs.ucr.edu] R$ exit #exit the second rshell
-
-[asong011@hammer.cs.ucr.edu] R$ git
-usage: git [--version] [--exec-path[=GIT_EXEC_PATH]] [--html-path]
-           [-p|--paginate|--no-pager] [--no-replace-objects]
-           [--bare] [--git-dir=GIT_DIR] [--work-tree=GIT_WORK_TREE]
-           [--help] COMMAND [ARGS]
-
-The most commonly used git commands are:
-   add        Add file contents to the index
-   bisect     Find by binary search the change that introduced a bug
-   branch     List, create, or delete branches
-   checkout   Checkout a branch or paths to the working tree
-   clone      Clone a repository into a new directory
-   commit     Record changes to the repository
-   diff       Show changes between commits, commit and working tree, etc
-   fetch      Download objects and refs from another repository
-   grep       Print lines matching a pattern
-   init       Create an empty git repository or reinitialize an existing one
-   log        Show commit logs
-   merge      Join two or more development histories together
-   mv         Move or rename a file, a directory, or a symlink
-   pull       Fetch from and merge with another repository or a local branch
-   push       Update remote refs along with associated objects
-   rebase     Forward-port local commits to the updated upstream head
-   reset      Reset current HEAD to the specified state
-   rm         Remove files from the working tree and from the index
-   show       Show various types of objects
-   status     Show the working tree status
-   tag        Create, list, delete or verify a tag object signed with GPG
-
-See 'git help COMMAND' for more information on a specific command.
+"hello world"
 
 [asong011@hammer.cs.ucr.edu] R$ git status
 fatal: Not a git repository (or any of the parent directories): .git
 
-[asong011@hammer.cs.ucr.edu] R$ mkdir testdir
+[asong011@hammer.cs.ucr.edu] R$ mkdir 11111
 
 [asong011@hammer.cs.ucr.edu] R$ ls
-bin  LICENSE  Makefile	README.md  single_command.script  src  testdir	tests
+11111  bin  LICENSE  Makefile  README.md  single_command.script	 src  tests
 
-[asong011@hammer.cs.ucr.edu] R$ rmdir testdir
+[asong011@hammer.cs.ucr.edu] R$ rmdir 11111
 
 [asong011@hammer.cs.ucr.edu] R$ ls
 bin  LICENSE  Makefile	README.md  single_command.script  src  tests
 
 [asong011@hammer.cs.ucr.edu] R$ exit
-]0;asong011@hammer:~/Desktop/CS-100/assn/assn1/rshell[asong011@hammer rshell]$ exit
+[asong011@hammer rshell]$ exit
 exit
 
-Script done on Wed 28 Oct 2015 11:03:11 PM PDT
+Script done on Wed 04 Nov 2015 12:15:07 PM PST

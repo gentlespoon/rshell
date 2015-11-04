@@ -39,7 +39,7 @@ public:
       
       // Dealing with "" quotes
       if (cmdLine.at(index) == '\"') {
-        if (V) cout << "\" found at position " << index;
+        if (V) cout << "\n\" found at position " << index;
         cout << vout(cmdLine, index);
         if ((index == 0) || (cmdLine.at(index-1) != '\\')) {
           if (V) cout << " This is a real quotation mark.\n";
@@ -48,10 +48,10 @@ public:
         }
         else {
           if (isInQuote) {
-            if (V) cout << " This is a slashed quotation mark in a quote.\n";
+            if (V) cout << " This is a slashed quotation mark in a quote.";
           }
           else {
-            cout << "\n** WARNING: There might be a slashed quotation mark outside a quote!\n";
+            cout << c_warning << "\n** WARNING: There might be a slashed quotation mark outside a quote!" << c_reset << endl;
           }
           if (V) cout << "[isInQuote] " << isInQuote << endl;
         }
@@ -59,13 +59,12 @@ public:
 
       // Dealing with # comments
       if (cmdLine.at(index) == '#') {
-        if (V) cout << "# found at position " << index;
+        if (V) cout << "\n# found at position " << index;
         cout << vout(cmdLine, index);
         if (isInQuote) {
-          if (V) cout << ", however this # is in a Quote. Ignored.\n";
+          if (V) cout << ", however this # is in a Quote. Ignored.";
         }
         else {
-          cout << vout(cmdLine, index);
           if (V) cout << ", wow we found a comment!\n";
           cmdLine = cmdLine.substr(0, index);
           break;
@@ -75,7 +74,7 @@ public:
 
     // Finished Remove Comment
     if (isInQuote) { // if when the line ends we are still in a quote
-      cout << "\n** WARNING: The line ends in a quote. \" expected.\n";
+      cout << c_warning << "\n** WARNING: The line ends in a quote. \" expected." << c_reset << endl;
     }
 
     if (V) cout << "[Out Line] " << cmdLine << "\n======== End Remove Comment ========\n";
@@ -84,7 +83,7 @@ public:
 
   vector<s_cmd> parseCmd(string delim) {
     vector<s_cmd> p_cmdList;
-    if (V) cout << "\n======= Start Parsing for " << delim << " =======\n";
+    if (V) cout << "\n======= Start Parsing for " << delim << " =======";
     // split delim into characters
     vector<char> delim_char;
     for (size_t i = 0; i < delim.length(); i++) {
@@ -106,7 +105,7 @@ public:
       bool isInQuote = false;
       for (size_t j = 0; j < cmdList.at(i).argv.length(); j++) { // scan thru all characters in cmdList[1].argv
         if (cmdList.at(i).argv.at(j) == '\"') {
-          if (V) cout << "\" found at position " << j;
+          if (V) cout << "\n\" found at position " << j;
           cout << vout(cmdList.at(i).argv, j);
           if ((j == 0) || (cmdLine.at(j-1) != '\\')) {
             if (V) cout << " This is a real quotation mark. ";
@@ -117,10 +116,10 @@ public:
               if (V) cout << " This is a slashed quotation mark in a quote. ";
             }
             else {
-              cout << "\n** WARNING: There might be a slashed quotation mark outside a quote!" << endl;
+              cout << c_warning << "\n** WARNING: There might be a slashed quotation mark outside a quote!" << c_reset << endl;
             }
           }
-          if (V) cout << "[isInQuote]=" << isInQuote << endl;
+          if (V) cout << "[isInQuote]=" << isInQuote;
         } else if ((!isInQuote) && (cmdList.at(i).argv.at(j) == delim_char.at(0))) { // match the first delim char
           // check the char to the front of the matched delim to make sure it is not an escaped char.
           size_t jprev = j;
@@ -137,7 +136,7 @@ public:
           if (cmdList.at(i).argv.at(jprev) != '\\') {
             // if first char matches
             bool match = true;
-            if (V) cout << "\nThis is a good delim_char[0]! Start delim matching.";
+            if (V) cout << "\nThis delim_char[0] is not escaped! Start delim matching.";
             for (size_t k = 0; k < delim_char.size(); k++) {
               if (cmdList.at(i).argv.at(j+k) == delim_char.at(k)) { // if the following delim char matches
                 if (V) {
@@ -148,7 +147,7 @@ public:
                   //   cout << " ";
                   // }
                   // cout << "^";
-                  cout <<"\nMatch: \"" << cmdList.at(i).argv.at(j+k) << "\" == \"" << delim_char.at(k) << "\"\n";
+                  cout <<"Match: \"" << cmdList.at(i).argv.at(j+k) << "\" == \"" << delim_char.at(k) << "\"";
                   
                 }
               } else { // if the following char does not match
@@ -159,14 +158,14 @@ public:
                   //   cout << " ";
                   // }
                   // cout << "^";
-                  cout << "\nDoes not match: \"" << cmdList.at(i).argv.at(j+k) << "\" != \"" << delim_char.at(k) << "\"\n";
+                  cout << "Does not match: \"" << cmdList.at(i).argv.at(j+k) << "\" != \"" << delim_char.at(k) << "\"";
                 }
                 match = false;
                 break; // does not match, break the loop
               }
             }
             if (match) {
-            if (V) cout << "\n!! We got a " << delim << "! Constructing new command";
+            if (V) cout << "\n!! We got a " << delim << "! Constructing new command\n";
               // separate commands here;
               // relation with former cmd
               if (isHead) {
@@ -219,7 +218,6 @@ public:
 
     cmdList = p_cmdList;
     if (V) cout << "\n======== End Parsing for " << delim << " ========\n";
-    if (V) printlist();
     return p_cmdList;
   }
 
@@ -383,33 +381,53 @@ public:
 
   // asong011 version
   void generateExecCommand() {
+
+    cout << vout("\n\n\n==================================\n");
+    cout << vout("=======generateExecCommand========\n");
+    cout << vout("==================================\n");
+    
     //flag to check if we run current command based on previous command
     bool previousStatus = true;
     bool runCurrentCommand = true;
     
     for (size_t i = 0; i < cmdList.size(); i++) {
+      if (V) cout << "\nWe have " << cmdList.size() << " commands, now executing command " << i+1 << endl;
+      if (V) cout << "[" << cmdList.at(i).exec << "] [" << cmdList.at(i).file << "] [" << cmdList.at(i).argv << "]\n";
+      if (V) cout << "First we check the exec bit: " << cmdList.at(i).exec << endl;
       if (cmdList.at(i).exec == ";") {
+        if (V) cout << "Okay, run anyway." << endl;
         runCurrentCommand = true;
       } else if (cmdList.at(i).exec == "&&") {
+        if (V) cout << "Let's see if our previous command executed successfully: ";
         if (!previousStatus) {
+          if (V) cout << "false. Do not execute this command." << endl;
           runCurrentCommand = false;
         } else {
+          if (V) cout << "true. Execute this command." << endl;
           runCurrentCommand = true;
         }
       } else if (cmdList.at(i).exec == "||") {
+        if (V) cout << "Let's see if our previous command executed successfully: ";
         if (!previousStatus) {
+          if (V) cout << "false. Execute this command." << endl;
           runCurrentCommand = true;
         } else {
+          if (V) cout << "true. Do not execute this command." << endl;
           runCurrentCommand = false;
         }
       }
       if (runCurrentCommand) {
+        if (V) cout << "So now we decided to execute this command." << endl;
+        if (V) cout << "================== EXECUTE START ==================" << endl << endl << endl;
         //set flag to see if command executed properly
-        if (!exec(cmdList.at(i).file, cmdList.at(i).argv)) {
+        /*if (!exec(cmdList.at(i).file, cmdList.at(i).argv)) {
           previousStatus = false;
         } else {
           previousStatus = true;
-        }
+        }*/ // inherit from cbui's code
+        previousStatus = exec(cmdList.at(i).file, cmdList.at(i).argv);
+        if (V) cout << endl << endl << endl << "=================== EXECUTE END ==================="<< endl;
+        if (V) cout << "Command " << i << " executed. Success? " << previousStatus << endl;
       }
     }
   }

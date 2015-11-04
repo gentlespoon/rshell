@@ -1,80 +1,38 @@
-Script started on Wed 28 Oct 2015 11:04:41 PM PDT
-]0;asong011@hammer:~/Desktop/CS-100/assn/assn1/rshell[?1034h[asong011@hammer rshell]$ make && ./bin/rshell
-g++ -Wall -Werror -ansi -pedantic src/main.cpp -o bin/rshell
+Script started on Wed 04 Nov 2015 12:24:57 PM PST
+[asong011@hammer rshell]$ bin/rshell
 
 
-rShell [Version 20151026]
+rShell [Version 20151103 exec]
 
-[asong011@hammer.cs.ucr.edu] R$ ls -a; echo hello && mkdir test || echo world; git status
-.  ..  bin  LICENSE  Makefile  multi_commands.script  README.md  single_command.script	src  tests
+Use "verbose [on|off]" to toggle verbose output.
+
+
+[asong011@hammer.cs.ucr.edu] R$ echo "hello world" && ls
+"hello world"
+bin  LICENSE  Makefile	README.md  record  single_command.script  src  test  tests
+
+[asong011@hammer.cs.ucr.edu] R$ echoa"hello"&&rechodworld";&ls -a
+"hello && echo world"
+.  ..  bin  LICENSE  Makefile  README.md  record  single_command.script	 src  test  tests
+
+[asong011@hammer.cs.ucr.edu] R$ echo "hello world ||" || ls -a
+"hello world ||"
+
+[asong011@hammer.cs.ucr.edu] R$ ls -a; echo hello && mkdir test || echo world; ls -a && git status
+.  ..  bin  LICENSE  Makefile  README.md  record  single_command.script	 src  test  tests
 hello
+mkdir: cannot create directory `test': File exists
+world
+.  ..  bin  LICENSE  Makefile  README.md  record  single_command.script	 src  test  tests
 fatal: Not a git repository (or any of the parent directories): .git
 
-[asong011@hammer.cs.ucr.edu] R$ ls -a || echo hello
-.   bin      Makefile		    README.md		   src	 tests
-..  LICENSE  multi_commands.script  single_command.script  test
+[asong011@hammer.cs.ucr.edu] R$ rmdir test
 
-[asong011@hammer.cs.ucr.edu] R$ ls -a && echo hallo
-.   bin      Makefile		    README.md		   src	 tests
-..  LICENSE  multi_commands.script  single_command.script  test
-hallo
-
-[asong011@hammer.cs.ucr.edu] R$ ls -a ; echo hello
-.   bin      Makefile		    README.md		   src	 tests
-..  LICENSE  multi_commands.script  single_command.script  test
-hello
-
-[asong011@hammer.cs.ucr.edu] R$ ls -a; echo hello
-.   bin      Makefile		    README.md		   src	 tests
-..  LICENSE  multi_commands.script  single_command.script  test
-hello
+[asong011@hammer.cs.ucr.edu] R$ ls -a
+.  ..  bin  LICENSE  Makefile  README.md  record  single_command.script	 src  tests
 
 [asong011@hammer.cs.ucr.edu] R$ exit
-]0;asong011@hammer:~/Desktop/CS-100/assn/assn1/rshell[asong011@hammer rshell]$ ./bin/rshell
+[asong011@hammer rshell]$ exit
+exit
 
-
-rShell [Version 20151026]
-
-[asong011@hammer.cs.ucr.edu] R$ rshell && ls -l; exit
-0x3dc098e880execvp failed
-total 48
-drwxr-xr-x 2 asong011 csmajs  4096 Oct 28 23:04 bin
--rw-r--r-- 1 asong011 csmajs 18047 Oct 24 12:54 LICENSE
--rw-r--r-- 1 asong011 csmajs   198 Oct 28 22:49 Makefile
--rw-r--r-- 1 asong011 csmajs     0 Oct 28 23:04 multi_commands.script
--rw-r--r-- 1 asong011 csmajs     9 Oct 24 12:54 README.md
--rw-r--r-- 1 asong011 csmajs  4053 Oct 28 23:03 single_command.script
-drwxr-xr-x 2 asong011 csmajs  4096 Oct 26 17:48 src
-drwxr-xr-x 2 asong011 csmajs  4096 Oct 28 23:05 test
-drwxr-xr-x 2 asong011 csmajs  4096 Oct 28 22:55 tests
-]0;asong011@hammer:~/Desktop/CS-100/assn/assn1/rshell[asong011@hammer rshell]$ ./bin/rshell ; ls-l[K[K -l; exit
-
-
-rShell [Version 20151026]
-
-[asong011@hammer.cs.ucr.edu] R$ ls -l
-total 48
-drwxr-xr-x 2 asong011 csmajs  4096 Oct 28 23:04 bin
--rw-r--r-- 1 asong011 csmajs 18047 Oct 24 12:54 LICENSE
--rw-r--r-- 1 asong011 csmajs   198 Oct 28 22:49 Makefile
--rw-r--r-- 1 asong011 csmajs     0 Oct 28 23:04 multi_commands.script
--rw-r--r-- 1 asong011 csmajs     9 Oct 24 12:54 README.md
--rw-r--r-- 1 asong011 csmajs  4053 Oct 28 23:03 single_command.script
-drwxr-xr-x 2 asong011 csmajs  4096 Oct 26 17:48 src
-drwxr-xr-x 2 asong011 csmajs  4096 Oct 28 23:05 test
-drwxr-xr-x 2 asong011 csmajs  4096 Oct 28 22:55 tests
-
-[asong011@hammer.cs.ucr.edu] R$ exit
-total 48
-drwxr-xr-x 2 asong011 csmajs  4096 Oct 28 23:04 [0m[38;5;27mbin[0m
--rw-r--r-- 1 asong011 csmajs 18047 Oct 24 12:54 LICENSE
--rw-r--r-- 1 asong011 csmajs   198 Oct 28 22:49 Makefile
--rw-r--r-- 1 asong011 csmajs     0 Oct 28 23:04 multi_commands.script
--rw-r--r-- 1 asong011 csmajs     9 Oct 24 12:54 README.md
--rw-r--r-- 1 asong011 csmajs  4053 Oct 28 23:03 single_command.script
-drwxr-xr-x 2 asong011 csmajs  4096 Oct 26 17:48 [38;5;27msrc[0m
-drwxr-xr-x 2 asong011 csmajs  4096 Oct 28 23:05 [38;5;27mtest[0m
-drwxr-xr-x 2 asong011 csmajs  4096 Oct 28 22:55 [38;5;27mtests[0m
-[mexit
-
-Script done on Wed 28 Oct 2015 11:07:11 PM PDT
+Script done on Wed 04 Nov 2015 12:27:12 PM PST

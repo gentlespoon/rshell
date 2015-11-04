@@ -21,7 +21,7 @@ bool V = false;
 // global verbose output control added.
 // can be switched by "$ verbose [on|off]" in runtime
 
-
+char c_warning[] = { 0x1b, '[', '1', ';', '3', '1', 'm', 0 };
 char c_bold[] = { 0x1b, '[', '1', ';', '3', '7', 'm', 0 };
 char c_prompt[] = { 0x1b, '[', '1', ';', '3', '2', 'm', 0 };
 char c_black[] = { 0x1b, '[', '0', ';', '3', '0', 'm', 0 };

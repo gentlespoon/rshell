@@ -1,0 +1,31 @@
+Script started on Wed 04 Nov 2015 12:27:52 PM PST
+[asong011@hammer rshell]$ bin/rshell
+
+
+rShell [Version 20151103 exec]
+
+Use "verbose [on|off]" to toggle verbose output.
+
+
+[asong011@hammer.cs.ucr.edu] R$ echo hello #world
+hello
+
+[asong011@hammer.cs.ucr.edu] R$ echo "hello #world"
+"hello #world"
+
+[asong011@hammer.cs.ucr.edu] R$ echo #hello world
+
+
+[asong011@hammer.cs.ucr.edu] R$ ls -a && echo hello #world
+.  ..  bin  LICENSE  Makefile  multi_commands.script  README.md	 record	 single_command.script	src  tests
+hello
+
+[asong011@hammer.cs.ucr.edu] R$ echoohello && ls -a # || echodworld
+hello
+.  ..  bin  LICENSE  Makefile  multi_commands.script  README.md	 record	 single_command.script	src  tests
+
+[asong011@hammer.cs.ucr.edu] R$ exit
+[asong011@hammer rshell]$ exit
+exit
+
+Script done on Wed 04 Nov 2015 12:29:19 PM PST
