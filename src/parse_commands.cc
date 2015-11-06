@@ -126,7 +126,7 @@ public:
           if (jprev != 0) { jprev -= 1; }
           if (V) {
             cout << vout(cmdList.at(i).argv, j);
-            cout << "\ndelim_char[0] found! Checking previous char.";
+            cout << "delim_char[0] found! Checking previous char.";
             // cout << "\n" << cmdList.at(i).argv << endl;
             // for (size_t l = 0; l < (jprev); l++) {
             //   cout << " ";
@@ -165,7 +165,7 @@ public:
               }
             }
             if (match) {
-            if (V) cout << "\n!! We got a " << delim << "! Constructing new command\n";
+            if (V) cout << "\n!! We got a " << delim << "! Constructing new command";
               // separate commands here;
               // relation with former cmd
               if (isHead) {
@@ -203,6 +203,7 @@ public:
       } else {
         currexec = delim;
       }
+      if (V) cout << "\nNo more delimiters.\nDumping the rest of the line into one last command.";
       // filename
       trimmed = cmdList.at(i).argv;
       trim(trimmed);
@@ -269,13 +270,22 @@ public:
 
 
   vector<s_cmd> trimCmd() {
-    if (V) cout << "\n======= start trimCmd =======\n";
+    if (V) cout << "\n======= start trimCmd =======" << endl << "Before trim:" << endl;
+    if (V) printlist();
+    if (V) cout << "trimming..." << endl;
     for (size_t i = 0; i< cmdList.size(); i++) {
+      if (cmdList.at(i).file == "") {
+        if (V) cout << "Empty command detected at cmdList[" << i << "]. Deleting...\n";
+        cmdList.erase(cmdList.begin()+i);
+        i--;
+      }
       if (cmdList.at(i).argv == cmdList.at(i).file) {
         cmdList.at(i).argv = "";
+      } else {
+        cmdList.at(i).argv = cmdList.at(i).argv.substr(cmdList.at(i).argv.find(' ')+1);
       }
-      cmdList.at(i).argv = cmdList.at(i).argv.substr(cmdList.at(i).argv.find(' ')+1);
     }
+    if (V) cout << "trimmed:" << endl;
     if (V) printlist();
     if (V) cout << "======== end trimCmd ========\n";
     return cmdList;
@@ -291,7 +301,7 @@ public:
   }
   void printlist() {
     for (size_t i = 0; i < cmdList.size(); i++) {
-      cout << "[" << cmdList.at(i).exec << "] [" << cmdList.at(i).file << "] [" << cmdList.at(i).argv << "]\n";
+      cout << "[" << cmdList.at(i).exec << "] [" << cmdList.at(i).file << "] [" << cmdList.at(i).argv << "]" << endl;
     }
   }
   
