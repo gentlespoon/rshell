@@ -42,7 +42,8 @@ char c_prompt[] = { 0x1b, '[', '1', ';', '3', '2', 'm', 0 };
 char c_black[] = { 0x1b, '[', '0', ';', '3', '0', 'm', 0 };
 char c_red[] = { 0x1b, '[', '0', ';', '3', '1', 'm', 0 };
 char c_green[] = { 0x1b, '[', '0', ';', '3', '2', 'm', 0 };
-char c_yellow[] = { 0x1b, '[', '1', ';', '3', '3', 'm', 0 };
+char c_yellow_n[] = { 0x1b, '[', '0', ';', '3', '3', 'm', 0 };
+char c_yellow_b[] = { 0x1b, '[', '1', ';', '3', '3', 'm', 0 };
 char c_blue[] = { 0x1b, '[', '0', ';', '3', '4', 'm', 0 };
 char c_purple[] = { 0x1b, '[', '0', ';', '3', '5', 'm', 0 };
 char c_cyan[] = { 0x1b, '[', '0', ';', '3', '6', 'm', 0 };
@@ -205,7 +206,7 @@ string removeComment(string cmdLine) {
           if (V) cout << "This is a slashed quotation mark in a quote." << endl;
         }
         else {
-          cout << c_warning << "** WARNING: There might be a slashed quotation mark outside a quote!" << c_reset << endl;
+          if (V) cout << c_yellow_n << "** Notice: There might be a slashed quotation mark outside a quote." << c_green << endl; // downgrade from WARNING to NOTICE
         }
         if (V) cout << "[isInQuote] " << isInQuote << endl;
       }
@@ -262,9 +263,6 @@ vector<s_cmd> parseCmd(vector<s_cmd> cmdList, string delim) {
         else {
           if (isInQuote) {
             if (V) cout << "This is a slashed quotation mark in a quote." << endl;
-          }
-          else {
-            cout << c_warning << "** WARNING: There might be a slashed quotation mark outside a quote!" << c_green << endl;
           }
         }
         if (V) cout << "[isInQuote]=" << isInQuote << endl;
@@ -395,7 +393,7 @@ o888o o888o o888o   "888" `Y8bod8P' d888b    o888o o888o `Y888""8o o888o
 bool test(vector<string> argv) {
   if (V) cout << c_green << flush;
   bool result = false;
-  if (in_array("-f", argv)) { // -f flag
+  if (argv[0] == "-f") { // -f flag
     if (V) cout << "Check File" << endl;
     struct stat sb;
     stat(const_cast<char*>(argv[1].c_str()), &sb);
@@ -406,7 +404,7 @@ bool test(vector<string> argv) {
       if (V) cout << "Input is not a File. Filename entered: " << argv[1] << endl;
       result = false;
     }
-  } else if (in_array("-d", argv)) { // -d flag
+  } else if (argv[0] == "-d") { // -d flag
     if (V) cout << "Check Dir" << endl;
     struct stat sb;
     stat(const_cast<char*>(argv[1].c_str()), &sb);
@@ -417,7 +415,7 @@ bool test(vector<string> argv) {
       if (V) cout << "Input is not a Directory. Filename entered: " << argv[1] << endl;
       result = false;
     }
-  } else if (in_array("-e", argv)) { // -e flag
+  } else if (argv[0] == "-e") { // -e flag
     if (V) cout << "Check Exist" << endl;
     struct stat sb;
     if( stat(const_cast<char*>(argv[1].c_str()), &sb) != 0) {
@@ -426,7 +424,9 @@ bool test(vector<string> argv) {
     } else {
       if (V) cout << "Input exists. Filename entered: " << argv[1] << endl;
       result = true;
-    } 
+    }
+  } else if (argv[0].at(0) == '-') { // if argv is a flag but not recognized
+    cout << c_reset << "Invalid flag: " << argv[0] << c_green << endl;
   } else { // if no flag then add -e as default flag and recurse to execute
     argv.insert(argv.begin(), "-e");
     if (test(argv)) {
