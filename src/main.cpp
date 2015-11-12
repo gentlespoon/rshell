@@ -1,14 +1,15 @@
-#include <iostream>
 #include <boost/algorithm/string.hpp>
 #include <cstdlib>
-#include <string>
+#include <iostream>
 #include <sstream>
-#include <vector>
-#include <unistd.h>
-#include <stdio.h>
 #include <stddef.h>
-#include <vector>
+#include <stdio.h>
+#include <string>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <sys/wait.h>
+#include <unistd.h>
+#include <vector>
 
 using namespace std;
 
@@ -26,7 +27,7 @@ char c_purple[] = { 0x1b, '[', '0', ';', '3', '5', 'm', 0 };
 char c_cyan[] = { 0x1b, '[', '0', ';', '3', '6', 'm', 0 };
 char c_white[] = { 0x1b, '[', '0', ';', '3', '7', 'm', 0 };
 char c_reset[] = { 0x1b, '[', '0', ';', '3', '9', 'm', 0 };
-bool V = true;
+bool V = false;
 string user = "user";
 char host[999] = "hostname";
 
@@ -166,6 +167,7 @@ string removeComment(string cmdLine) {
   }
   if (isInQuote) { // when the line ends we are still in a quote
     cout << c_warning << "** WARNING: The line ends in a quote. \" expected." << c_reset << endl;
+    return "";
   }
   if (V) cout << "[Outpt Line] " << cmdLine << endl << "======== End Remove Comment ========" << endl;
   if (V) cout << c_reset;
@@ -348,11 +350,12 @@ vector<s_cmd> trimCmd(vector<s_cmd> cmdList) {
 
 
 int is_built_in(string file, string argv) {
-  // if "file argv" is a built in command then execute it and {return 1 if success, -1 if failed}, otherwise do nothing and return 0
-  int executed = 0;
+  // if "file argv" is a built in command then execute it and {return 0 if success, 1 if failed}, otherwise do nothing and return -1
+  int executed = -1;
   // handle rshell built-in commands;
   if (file == "exit") {
-    executed = 1;
+    executed = 0;
+    cout << c_reset << endl;
     exit(0);
   }
   if (file == "verbose") {
@@ -363,7 +366,7 @@ int is_built_in(string file, string argv) {
       V = false;
       cout << "Verbose output is now turned off.\nToggle: verbose [on|off]" << endl;
     }
-    executed = 1;
+    executed = 0;
   }
   return executed;
 }
@@ -382,12 +385,59 @@ int is_built_in(string file, string argv) {
 
 
 bool EXECUTE(string file, string argv) {
-  if (is_built_in(file, argv) == 0) { // if "file argv" is not a built-in command:
-    char *args[3] = {NULL, NULL, NULL};
-    args[0] = const_cast<char *>(file.c_str());
+  if (V) cout << c_green << flush;
+  int built_in = is_built_in(file, argv);
+  if (built_in == -1) { // if "file argv" is not a built-in command:
+    vector<string> argList;
     if (argv.length() != 0) {
-      args[1] = const_cast<char *>(argv.c_str());
+      bool isInQuote = false;
+      for (size_t i = 0; i < argv.length(); i++) { // tokenize argv
+        if (argv.at(i) == '\"') {
+          if (V) cout << "\" found at position " << i << endl;
+          cout << vout(argv, i);
+          if ((i == 0) || (argv.at(i-1) != '\\')) {
+            if (V) cout << "This is a real quotation mark." << endl;
+            argv.erase(argv.begin() + i);
+            i--;
+            isInQuote = !isInQuote;
+            if (V) cout << "[isInQuote]=" << isInQuote << endl;
+          }
+          else {
+            if (isInQuote) {
+              if (V) cout << "This is a slashed quotation mark in a quote." << endl;
+            }
+          }
+        } else if (argv.at(i) == ' ') {
+          cout << vout(argv, i);
+          if (!isInQuote) {
+            if (V) cout << "This is a real space. Tokenize." << endl;
+            argList.push_back(argv.substr(0, i));
+            argv = argv.substr(i+1);
+            i=-1;
+          } else {
+            if (V) cout << "This is a space in quote. Ignore." << endl;
+          }
+        }
+      }
+      argList.push_back(argv);
+      if (V) {
+        cout << "List of arguments:" << endl;
+        for (size_t j = 0; j < argList.size(); j++) {
+          cout << argList.at(j) << endl;
+        }
+      }
+    } else {
+      if (V) cout << "No arguments provided." << endl;
     }
+
+    char **args = new char*[argList.size()+2];
+    args[0] = const_cast<char*>(file.c_str());
+    size_t i;
+    for (i = 0; i < argList.size(); i++) {
+      args[i+1] = const_cast<char*>(argList.at(i).c_str());
+    }
+    args[i+1] = NULL;
+    if (V) cout << c_reset << flush;
     int success;
     int status;
     pid_t c_pid, pid;
@@ -396,6 +446,7 @@ bool EXECUTE(string file, string argv) {
       //child process running
       execvp(args[0], args);
       perror("exec failed");
+      delete[] args;
       exit(1);
     }
     else if (c_pid > 0) {
@@ -406,14 +457,23 @@ bool EXECUTE(string file, string argv) {
         success = WEXITSTATUS(status);
       }
       if (success == 0) {
+        delete[] args;
         return true;
       }
+      delete[] args;
       return false;
     }
     else {
       perror("fork failed");
+      delete[] args;
       exit(1);
     }
+
+    delete[] args;
+  } else if (built_in == 1) {
+    return true;
+  } else {
+    return false;
   }
   return true;
 }
@@ -495,13 +555,9 @@ int newCmd() {
 
   string newLine;
   getline(cin, newLine);
-  if (newLine == ""){
-    return 0;// if empty line
-  } 
   // override for testing
   bool test = false;
   if (newLine == "test1") {
-    // bug exists in the commented testline; the boost/tokenizer class wont recognize \\\" in a quote.
     // but as long as there's no multiple \"s in a quote, it will function well.
     newLine = "echo \"/bin/bash\" \"/bin/bash# This Part is a\\ # inside a quote\"; echo \"Hello World\" #This is a real quote ";
     test = true;
@@ -519,6 +575,9 @@ int newCmd() {
   if (test) { cout << "Testing stdin override << " << newLine << endl; }
 
   newLine = removeComment(newLine);
+  if (newLine == ""){
+    return 0;// if empty line or quotation error
+  } 
   vector<s_cmd> cmdList;
   s_cmd s_cmd1(";", "", newLine);
   cmdList.push_back(s_cmd1);
