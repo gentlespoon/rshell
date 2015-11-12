@@ -30,6 +30,20 @@ bool V = true;
 string user = "user";
 char host[999] = "hostname";
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 struct s_cmd {
   string exec;
   string file;
@@ -46,6 +60,16 @@ struct s_cmd {
   }
 };
 
+
+
+
+
+
+
+
+
+
+
 string vout(string str, size_t loc) {
   ostringstream oss;
   // oss << c_green;
@@ -54,8 +78,8 @@ string vout(string str, size_t loc) {
   size_t w = l;
   if (loc > l) w = loc;
   if (loc >= l) {
-    for (size_t i = 0; i < w+3; i++) oss << blk << endl;
-    oss << "loc (" << loc << ") out of range (" << l << ")" << endl;
+    for (size_t i = 0; i < w; i++) oss << blk;
+    oss << endl << "loc (" << loc << ") out of range (" << l << ")" << endl;
   }
   if (!V) {}
   else {
@@ -71,11 +95,37 @@ string vout(string str, size_t loc) {
   // oss << c_reset;
   return oss.str();
 }
+
+
+
+
+
+
+
+
+
+
+
+
 void printlist(vector<s_cmd> cmdList) {
   for (size_t i = 0; i < cmdList.size(); i++) {
     cout << "[" << cmdList.at(i).exec << "] [" << cmdList.at(i).file << "] [" << cmdList.at(i).argv << "]" << endl;
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 string removeComment(string cmdLine) {
   if (V) cout << c_green;
@@ -123,6 +173,20 @@ string removeComment(string cmdLine) {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 vector<s_cmd> parseCmd(vector<s_cmd> cmdList, string delim) {
   if (V) cout << c_green;
   vector<s_cmd> p_cmdList;
@@ -152,7 +216,7 @@ vector<s_cmd> parseCmd(vector<s_cmd> cmdList, string delim) {
             if (V) cout << "This is a slashed quotation mark in a quote." << endl;
           }
           else {
-            cout << c_warning << "** WARNING: There might be a slashed quotation mark outside a quote!" << c_reset << endl;
+            cout << c_warning << "** WARNING: There might be a slashed quotation mark outside a quote!" << c_green << endl;
           }
         }
         if (V) cout << "[isInQuote]=" << isInQuote << endl;
@@ -169,15 +233,23 @@ vector<s_cmd> parseCmd(vector<s_cmd> cmdList, string delim) {
           bool match = true;
           if (V) cout << "This delim_char[0] " << delim_char.at(0) << " is not escaped! Start delim matching." << endl;
           for (size_t k = 0; k < delim_char.size(); k++) {
-            if (cmdList.at(i).argv.at(j+k) == delim_char.at(k)) {
-              if (V) {
-                cout << vout(cmdList.at(i).argv, j+k);
-                cout <<"Match: \"" << cmdList.at(i).argv.at(j+k) << "\" == \"" << delim_char.at(k) << "\"" << endl;
+            if ((j+k) < cmdList.at(i).argv.length()) {
+              if ((cmdList.at(i).argv.at(j+k) == delim_char.at(k))) {
+                if (V) {
+                  cout << vout(cmdList.at(i).argv, j+k);
+                  cout <<"Match: \"" << cmdList.at(i).argv.at(j+k) << "\" == \"" << delim_char.at(k) << "\"" << endl;
+                }
+              } else { // if the following char matched but is escaped
+                if (V) {
+                  cout << vout(cmdList.at(i).argv, j+k);
+                  cout << "Does not match: \"" << cmdList.at(i).argv.at(j+k) << "\" != \"" << delim_char.at(k) << "\"" << endl;
+                }
+                match = false;
+                break; // does not match, break the loop
               }
-            } else { // if the following char matched but is escaped
+            } else {
               if (V) {
                 cout << vout(cmdList.at(i).argv, j+k);
-                cout << "Does not match: \"" << cmdList.at(i).argv.at(j+k) << "\" != \"" << delim_char.at(k) << "\"" << endl;
               }
               match = false;
               break; // does not match, break the loop
@@ -227,6 +299,17 @@ vector<s_cmd> parseCmd(vector<s_cmd> cmdList, string delim) {
   return p_cmdList;
 }
 
+
+
+
+
+
+
+
+
+
+
+
 vector<s_cmd> trimCmd(vector<s_cmd> cmdList) {
   if (V) cout << c_green;
   if (V) cout << "======= start trimCmd =======" << endl << "Before trim:" << endl;
@@ -253,6 +336,17 @@ vector<s_cmd> trimCmd(vector<s_cmd> cmdList) {
   return cmdList;
 }
 
+
+
+
+
+
+
+
+
+
+
+
 int is_built_in(string file, string argv) {
   // if "file argv" is a built in command then execute it and {return 1 if success, -1 if failed}, otherwise do nothing and return 0
   int executed = 0;
@@ -273,6 +367,20 @@ int is_built_in(string file, string argv) {
   }
   return executed;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 bool EXECUTE(string file, string argv) {
   if (is_built_in(file, argv) == 0) { // if "file argv" is not a built-in command:
     char *args[3] = {NULL, NULL, NULL};
@@ -309,6 +417,20 @@ bool EXECUTE(string file, string argv) {
   }
   return true;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 void execCommand(vector<s_cmd> cmdList) {
   if (V) cout << c_green << "=======generateExecCommand========" << endl;
@@ -352,6 +474,20 @@ void execCommand(vector<s_cmd> cmdList) {
   if (V) cout << c_reset;
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 int newCmd() {
   // to distinguish with system shell I used "R$" instead of "$"
   cout << c_prompt << "" << user << "@" << host << " R$ " << c_reset;
@@ -393,6 +529,17 @@ int newCmd() {
   execCommand(cmdList);
   return 0;
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 int main(int argc, char *argv[]) {
