@@ -13,6 +13,11 @@
 
 using namespace std;
 
+
+///////////////////////
+// structs & global var
+///////////////////////
+
 std::string version = "20151110 Test command & Precedence Operators";
 
 char c_warning[] = { 0x1b, '[', '1', ';', '3', '1', 'm', 0 };
@@ -30,20 +35,6 @@ char c_reset[] = { 0x1b, '[', '0', ';', '3', '9', 'm', 0 };
 bool V = false;
 string user = "user";
 char host[999] = "hostname";
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 struct s_cmd {
   string exec;
@@ -65,11 +56,9 @@ struct s_cmd {
 
 
 
-
-
-
-
-
+/////////////////
+// tool functions
+/////////////////
 
 string vout(string str, size_t loc) {
   ostringstream oss;
@@ -97,21 +86,58 @@ string vout(string str, size_t loc) {
   return oss.str();
 }
 
-
-
-
-
-
-
-
-
-
-
-
 void printlist(vector<s_cmd> cmdList) {
   for (size_t i = 0; i < cmdList.size(); i++) {
     cout << "[" << cmdList.at(i).exec << "] [" << cmdList.at(i).file << "] [" << cmdList.at(i).argv << "]" << endl;
   }
+}
+
+bool in_array(string str, vector<string> vec) {
+  int size = vec.size();
+  for (int i = 0; i < size; i++) {
+    if (str == vec.at(i)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+vector<string> tokenize(string str) {
+  if (V) cout << "====== Start Tokenize ======" << endl;
+  vector<string> token;
+  bool isInQuote = false;
+  for (size_t i = 0; i < str.length(); i++) { // tokenize str
+    if (str.at(i) == '\"') {
+      if (V) cout << "\" found at position " << i << endl;
+      cout << vout(str, i);
+      if ((i == 0) || (str.at(i-1) != '\\')) {
+        if (V) cout << "This is a real quotation mark." << endl;
+        str.erase(str.begin() + i);
+        i--;
+        isInQuote = !isInQuote;
+        if (V) cout << "[isInQuote]=" << isInQuote << endl;
+      }
+      else {
+        if (isInQuote) {
+          if (V) cout << "This is a slashed quotation mark in a quote." << endl;
+        }
+      }
+    } else if (str.at(i) == ' ') {
+      cout << vout(str, i);
+      if (!isInQuote) {
+        if (V) cout << "This is a real space. Tokenize." << endl;
+        token.push_back(str.substr(0, i));
+        str = str.substr(i+1);
+        i=-1;
+      } else {
+        if (V) cout << "This is a space in quote. Ignore." << endl;
+      }
+    }
+  }
+  token.push_back(str);
+  if (V) for (size_t i = 0; i < token.size(); i++) cout << "["<< token.at(i) << "] ";
+  if (V) cout << endl << "======= End Tokenize =======" << endl;
+  return token;
 }
 
 
@@ -121,12 +147,9 @@ void printlist(vector<s_cmd> cmdList) {
 
 
 
-
-
-
-
-
-
+//////////////////
+// command parsing
+//////////////////
 
 string removeComment(string cmdLine) {
   if (V) cout << c_green;
@@ -170,22 +193,9 @@ string removeComment(string cmdLine) {
     return "";
   }
   if (V) cout << "[Outpt Line] " << cmdLine << endl << "======== End Remove Comment ========" << endl;
-  if (V) cout << c_reset;
+  if (V) cout << c_reset << flush;
   return cmdLine;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -297,19 +307,9 @@ vector<s_cmd> parseCmd(vector<s_cmd> cmdList, string delim) {
   }
   cmdList = p_cmdList;
   if (V) cout << "======== End Parsing for " << delim << " ========" << endl;
-  if (V) cout << c_reset;
+  if (V) cout << c_reset << flush;
   return p_cmdList;
 }
-
-
-
-
-
-
-
-
-
-
 
 
 vector<s_cmd> trimCmd(vector<s_cmd> cmdList) {
@@ -334,7 +334,7 @@ vector<s_cmd> trimCmd(vector<s_cmd> cmdList) {
   if (V) cout << "After trim:  " << endl;
   if (V) printlist(cmdList);
   if (V) cout << "======== end trimCmd ========" << endl;
-  if (V) cout << c_reset;
+  if (V) cout << c_reset << flush;
   return cmdList;
 }
 
@@ -342,94 +342,128 @@ vector<s_cmd> trimCmd(vector<s_cmd> cmdList) {
 
 
 
+////////////////////
+// internal commands
+////////////////////
+
+bool test(vector<string> argv) {
+  if (V) cout << c_green << flush;
+  bool result = false;
+  if (in_array("-f", argv)) { // -f flag
+    if (V) cout << "Check File" << endl;
+    struct stat sb;
+    stat(const_cast<char*>(argv[1].c_str()), &sb);
+    if ((sb.st_mode & S_IFMT) == S_IFREG) {
+      if (V) cout << "Input is a File. Filename entered: " << argv[1] << endl;
+      result = true;
+    } else {
+      if (V) cout << "Input is not a File. Filename entered: " << argv[1] << endl;
+      result = false;
+    }
+  } else if (in_array("-d", argv)) { // -d flag
+    if (V) cout << "Check Dir" << endl;
+    struct stat sb;
+    stat(const_cast<char*>(argv[1].c_str()), &sb);
+    if ((sb.st_mode & S_IFMT) == S_IFDIR) {
+      if (V) cout << "Input is a Directory. Filename entered: " << argv[1] << endl;
+      result = true;
+    } else {
+      if (V) cout << "Input is not a Directory. Filename entered: " << argv[1] << endl;
+      result = false;
+    }
+  } else if (in_array("-e", argv)) { // -e flag
+    if (V) cout << "Check Exist" << endl;
+    struct stat sb;
+    if( stat(const_cast<char*>(argv[1].c_str()), &sb) != 0) {
+      if (V) cout << "Input does not exist. Filename entered: " << argv[1] << endl;
+      result = false;
+    } else {
+      if (V) cout << "Input exists. Filename entered: " << argv[1] << endl;
+      result = true;
+    } 
+  } else { // if no flag then add -e as default flag and recurse to execute
+    argv.insert(argv.begin(), "-e");
+    if (test(argv)) {
+      result = true;
+    } else {
+      result = false;
+    }
+  }
+  if (V) cout << c_reset << flush;
+  return result;
+}
 
 
 
+///////////////////
+// execute commands
+///////////////////
 
-
-
-
-int is_built_in(string file, string argv) {
-  // if "file argv" is a built in command then execute it and {return 0 if success, 1 if failed}, otherwise do nothing and return -1
+int is_built_in(string file, vector<string> argv) {
+  // if "file argv" is a built in command then execute it and {return 1 if success, 0 if failed}, otherwise do nothing and return -1
   int executed = -1;
   // handle rshell built-in commands;
   if (file == "exit") {
-    executed = 0;
+    executed = 1;
     cout << c_reset << endl;
     exit(0);
   }
-  if (file == "verbose") {
-    if ((argv == "on") || argv == "1") {
+
+  else if (file == "verbose") {
+    if ((argv.at(0) == "on") || argv.at(0) == "1") {
       V = true;
       cout << "Verbose output is now turned on.\nToggle: verbose [on|off]" << endl;
     } else {
       V = false;
       cout << "Verbose output is now turned off.\nToggle: verbose [on|off]" << endl;
     }
-    executed = 0;
+    executed = 1;
   }
+
+  else if (file == "test") {
+    executed = 0;
+    bool success = test(argv);
+    if (success) {
+      executed = 1;
+    } else {
+      executed = 0;
+    }
+  }
+
+  else if (file == "[") {
+    if (argv.at(argv.size()-1) == "]") {
+      argv.pop_back();
+      executed = 0;
+      bool success = test(argv);
+      if (success) {
+        executed = 1;
+      } else {
+        executed = 0;
+      }
+    }
+  }
+
   return executed;
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 bool EXECUTE(string file, string argv) {
   if (V) cout << c_green << flush;
-  int built_in = is_built_in(file, argv);
-  if (built_in == -1) { // if "file argv" is not a built-in command:
-    vector<string> argList;
-    if (argv.length() != 0) {
-      bool isInQuote = false;
-      for (size_t i = 0; i < argv.length(); i++) { // tokenize argv
-        if (argv.at(i) == '\"') {
-          if (V) cout << "\" found at position " << i << endl;
-          cout << vout(argv, i);
-          if ((i == 0) || (argv.at(i-1) != '\\')) {
-            if (V) cout << "This is a real quotation mark." << endl;
-            argv.erase(argv.begin() + i);
-            i--;
-            isInQuote = !isInQuote;
-            if (V) cout << "[isInQuote]=" << isInQuote << endl;
-          }
-          else {
-            if (isInQuote) {
-              if (V) cout << "This is a slashed quotation mark in a quote." << endl;
-            }
-          }
-        } else if (argv.at(i) == ' ') {
-          cout << vout(argv, i);
-          if (!isInQuote) {
-            if (V) cout << "This is a real space. Tokenize." << endl;
-            argList.push_back(argv.substr(0, i));
-            argv = argv.substr(i+1);
-            i=-1;
-          } else {
-            if (V) cout << "This is a space in quote. Ignore." << endl;
-          }
-        }
+  vector<string> argList;
+  if (argv.length() != 0) {
+    argList = tokenize(argv);
+    if (V) {
+      cout << "List of arguments:" << endl;
+      for (size_t j = 0; j < argList.size(); j++) {
+        cout << argList.at(j) << endl;
       }
-      argList.push_back(argv);
-      if (V) {
-        cout << "List of arguments:" << endl;
-        for (size_t j = 0; j < argList.size(); j++) {
-          cout << argList.at(j) << endl;
-        }
-      }
-    } else {
-      if (V) cout << "No arguments provided." << endl;
     }
-
+  } else {
+    if (V) cout << "No arguments provided." << endl;
+  }
+  int built_in = is_built_in(file, argList);
+  if (built_in == -1) { // if "file argv" is not a built-in command:
+    // convert (argv) vector<string> to char** for execvp
     char **args = new char*[argList.size()+2];
     args[0] = const_cast<char*>(file.c_str());
     size_t i;
@@ -470,26 +504,13 @@ bool EXECUTE(string file, string argv) {
     }
 
     delete[] args;
-  } else if (built_in == 1) {
+  } else if (built_in == 1) { // is built-in cmd and success
     return true;
-  } else {
+  } else { // is built-in cmd but failed
     return false;
   }
   return true;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 void execCommand(vector<s_cmd> cmdList) {
@@ -531,7 +552,7 @@ void execCommand(vector<s_cmd> cmdList) {
       if (V) cout << "Command " << i << " executed. isSuccess? " << previousStatus << endl;
     }
   }
-  if (V) cout << c_reset;
+  if (V) cout << c_reset << flush;
 }
 
 
@@ -543,14 +564,14 @@ void execCommand(vector<s_cmd> cmdList) {
 
 
 
-
-
-
+/////////////////
+// main framework
+/////////////////
 
 
 int newCmd() {
   // to distinguish with system shell I used "R$" instead of "$"
-  cout << c_prompt << "" << user << "@" << host << " R$ " << c_reset;
+  cout << c_prompt << "" << user << "@" << host << " R$ " << c_reset << flush;
   // GET USER INPUT
 
   string newLine;
