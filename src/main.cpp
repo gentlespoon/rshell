@@ -14,9 +14,25 @@
 using namespace std;
 
 
-///////////////////////
-// structs & global var
-///////////////////////
+
+
+
+
+/*
+             .                                      .            
+           .o8                                    .o8            
+ .oooo.o .o888oo oooo d8b oooo  oooo   .ooooo.  .o888oo  .oooo.o 
+d88(  "8   888   `888""8P `888  `888  d88' `"Y8   888   d88(  "8 
+`"Y88b.    888    888      888   888  888         888   `"Y88b.  
+o.  )88b   888 .  888      888   888  888   .o8   888 . o.  )88b 
+8""888P'   "888" d888b     `V88V"V8P' `Y8bod8P'   "888" 8""888P' 
+
+oooo    ooo  .oooo.   oooo d8b  .oooo.o 
+ `88.  .8'  `P  )88b  `888""8P d88(  "8 
+  `88..8'    .oP"888   888     `"Y88b.  
+   `888'    d8(  888   888     o.  )88b 
+    `8'     `Y888""8o d888b    8""888P' 
+*/
 
 std::string version = "20151110 Test command & Precedence Operators";
 
@@ -56,9 +72,18 @@ struct s_cmd {
 
 
 
-/////////////////
-// tool functions
-/////////////////
+
+/*
+
+    .                       oooo  
+  .o8                       `888  
+.o888oo  .ooooo.   .ooooo.   888  
+  888   d88' `88b d88' `88b  888  
+  888   888   888 888   888  888  
+  888 . 888   888 888   888  888  
+  "888" `Y8bod8P' `Y8bod8P' o888o 
+*/
+
 
 string vout(string str, size_t loc) {
   ostringstream oss;
@@ -147,9 +172,20 @@ vector<string> tokenize(string str) {
 
 
 
-//////////////////
-// command parsing
-//////////////////
+
+
+
+/*
+                                        o8o                         
+                                        `"'                         
+oo.ooooo.   .oooo.   oooo d8b  .oooo.o oooo  ooo. .oo.    .oooooooo 
+ 888' `88b `P  )88b  `888""8P d88(  "8 `888  `888P"Y88b  888' `88b  
+ 888   888  .oP"888   888     `"Y88b.   888   888   888  888   888  
+ 888   888 d8(  888   888     o.  )88b  888   888   888  `88bod8P'  
+ 888bod8P' `Y888""8o d888b    8""888P' o888o o888o o888o `8oooooo.  
+ 888                                                     d"     YD  
+o888o                                                    "Y88888P'  
+*/
 
 string removeComment(string cmdLine) {
   if (V) cout << c_green;
@@ -342,9 +378,19 @@ vector<s_cmd> trimCmd(vector<s_cmd> cmdList) {
 
 
 
-////////////////////
-// internal commands
-////////////////////
+
+
+
+
+/*
+ o8o                  .                                            oooo  
+ `"'                .o8                                            `888  
+oooo  ooo. .oo.   .o888oo  .ooooo.  oooo d8b ooo. .oo.    .oooo.    888  
+`888  `888P"Y88b    888   d88' `88b `888""8P `888P"Y88b  `P  )88b   888  
+ 888   888   888    888   888ooo888  888      888   888   .oP"888   888  
+ 888   888   888    888 . 888    .o  888      888   888  d8(  888   888  
+o888o o888o o888o   "888" `Y8bod8P' d888b    o888o o888o `Y888""8o o888o 
+*/
 
 bool test(vector<string> argv) {
   if (V) cout << c_green << flush;
@@ -395,26 +441,41 @@ bool test(vector<string> argv) {
 
 
 
-///////////////////
-// execute commands
-///////////////////
+
+
+
+
+
+
+/*
+                                                          .             
+                                                        .o8             
+ .ooooo.  oooo    ooo  .ooooo.   .ooooo.  oooo  oooo  .o888oo  .ooooo.  
+d88' `88b  `88b..8P'  d88' `88b d88' `"Y8 `888  `888    888   d88' `88b 
+888ooo888    Y888'    888ooo888 888        888   888    888   888ooo888 
+888    .o  .o8"'88b   888    .o 888   .o8  888   888    888 . 888    .o 
+`Y8bod8P' o88'   888o `Y8bod8P' `Y8bod8P'  `V88V"V8P'   "888" `Y8bod8P' 
+*/
 
 int is_built_in(string file, vector<string> argv) {
+  if (V) cout << c_green << flush;
   // if "file argv" is a built in command then execute it and {return 1 if success, 0 if failed}, otherwise do nothing and return -1
   int executed = -1;
   // handle rshell built-in commands;
   if (file == "exit") {
     executed = 1;
-    cout << c_reset << endl;
+    cout << c_reset << flush;
     exit(0);
   }
 
   else if (file == "verbose") {
     if ((argv.at(0) == "on") || argv.at(0) == "1") {
       V = true;
+      cout << c_reset << flush;
       cout << "Verbose output is now turned on.\nToggle: verbose [on|off]" << endl;
     } else {
       V = false;
+      cout << c_reset << flush;
       cout << "Verbose output is now turned off.\nToggle: verbose [on|off]" << endl;
     }
     executed = 1;
@@ -432,6 +493,7 @@ int is_built_in(string file, vector<string> argv) {
 
   else if (file == "[") {
     if (argv.at(argv.size()-1) == "]") {
+      if (V) cout << c_green << "[] detected, identified as alias to built-in cmd `test`." << endl << "argv.pop_back to erase ] and pass it to test function." << c_reset << flush;
       argv.pop_back();
       executed = 0;
       bool success = test(argv);
@@ -563,11 +625,15 @@ void execCommand(vector<s_cmd> cmdList) {
 
 
 
-
-/////////////////
-// main framework
-/////////////////
-
+/*
+ .o88o.                                                
+ 888 `"                                                
+o888oo  oooo d8b  .oooo.   ooo. .oo.  .oo.    .ooooo.  
+ 888    `888""8P `P  )88b  `888P"Y88bP"Y88b  d88' `88b 
+ 888     888      .oP"888   888   888   888  888ooo888 
+ 888     888     d8(  888   888   888   888  888    .o 
+o888o   d888b    `Y888""8o o888o o888o o888o `Y8bod8P' 
+*/
 
 int newCmd() {
   // to distinguish with system shell I used "R$" instead of "$"
@@ -609,18 +675,6 @@ int newCmd() {
   execCommand(cmdList);
   return 0;
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 int main(int argc, char *argv[]) {
   cout << c_bold << "\n\nrShell [Version " << version << "]" << endl;
