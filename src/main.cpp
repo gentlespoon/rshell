@@ -655,9 +655,11 @@ o888o   d888b    `Y888""8o o888o o888o o888o `Y8bod8P'
 
 
 int newCmd() {
-  // to distinguish with system shell I use "R$" instead of "$"
-  cout << color("green", "bold") << "" << user << "@" << host << " R$ " << flush;
-  cout << color();
+  // to distinguish with system shell I use "[R]$" instead of "$"
+  cout << color("green", "bold") << "" << user << "@" << host << flush;
+  cout << color() << ":" << flush;
+  cout << color("blue", "bold") << dir << flush;
+  cout << color() << "[R]$ " << flush;
   
   // GET USER INPUT
   string newLine;
@@ -724,6 +726,14 @@ int main(int argc, char *argv[]) {
   cout << "Use \"verbose [on|off]\" to toggle verbose output."  << endl << endl;
   user = getlogin();
   gethostname(host, 999);
+  getcwd(chardir,BUFSIZ);
+  dir = chardir;
+  home = charh;
+  if (dir.find(home) == 0) {
+    dir.replace(0, home.length(), "~");
+  }
+  // cout << home << endl;
+  // cout << dir << endl;
   while (1) {
     newCmd();
   }
