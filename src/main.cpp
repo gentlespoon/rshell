@@ -42,10 +42,31 @@ struct s_cmd {
   888 . 888   888 888   888  888  
   "888" `Y8bod8P' `Y8bod8P' o888o 
 */
-void printlist(vector<s_cmd> cmdList) {
-  for (size_t i = 0; i < cmdList.size(); i++) {
-    cout << i << "\t[" << cmdList.at(i).exec << "] [" << cmdList.at(i).file << "] [" << cmdList.at(i).argv << "]" << endl;
+string printlist(vector<s_cmd> cmdList, size_t pos = SIZE_MAX) {
+  ostringstream oss;
+  if (pos == SIZE_MAX) {
+    for (size_t i = 0; i < cmdList.size(); i++) {
+      oss << i << "\t[" << cmdList.at(i).exec << "]\t[" << cmdList.at(i).file << "]\t[" << cmdList.at(i).argv << "]" << endl;
+    }
+  } else {
+    if (pos >= cmdList.size()) {
+      oss << color("red", "bold");
+      oss << endl << "pos (" << pos << ") out of range (" << cmdList.size() << ")" << endl;
+      // oss << color();
+    }
+    for (size_t i = 0; i < cmdList.size(); i++) {
+      oss << i;
+      if (i==pos) {
+        oss << " -->\t";
+      }
+      else {
+        oss << "\t";
+      }
+      oss << " [" << cmdList.at(i).exec << "]\t[" << cmdList.at(i).file << "]\t[" << cmdList.at(i).argv << "]" << endl;
+    }
   }
+  return oss.str();
+
 }
 
 
@@ -70,7 +91,7 @@ o888o                                                    "Y88888P'
 
 
 string removeComment(string cmdLine) {
-  if (V) cout << color("green");
+  // if (V) cout << color("green");
   if (V) cout << "======= Start Remove Comment =======\n[Input Line] " << cmdLine << endl;
   bool isInQuote = false;
   for (size_t index = 0; index < cmdLine.length(); index++) {
@@ -105,11 +126,11 @@ string removeComment(string cmdLine) {
   }
   }
   if (isInQuote) { // when the line ends we are still in a quote
-  cout << color("red", "b") << "** WARNING: The line ends in a quote. \" expected." << color() << endl;
+  cout << color("red", "b") << "** WARNING: The line ends in a quote. \" expected." << color("green") << endl;
   return "";
   }
   if (V) cout << "[Outpt Line] " << cmdLine << endl << "======== End Remove Comment ========" << endl;
-  if (V) cout << color() << flush;
+  // if (V) cout << color() << flush;
   return cmdLine;
 }
 
@@ -123,7 +144,7 @@ string removeComment(string cmdLine) {
 
 
 vector<s_cmd> parseCmd(vector<s_cmd> cmdList, string delim) {
-  if (V) {cout << color("green");}
+  // if (V) {cout << color("green");}
   vector<s_cmd> p_cmdList;
   if (V) {cout << "======= Start Parsing for " << delim << " =======" << endl;}
   // split delim into characters
@@ -196,9 +217,9 @@ vector<s_cmd> parseCmd(vector<s_cmd> cmdList, string delim) {
             boost::trim(trimmed); // trim whitespaces.
             file = trimmed.substr(0, trimmed.find(' ')); //extract the file name from the command
             argv = trimmed; // keep filename for future parsing
-            s_cmd s_cmd2(currexec, file, argv);
-            p_cmdList.push_back(s_cmd2);
-            if (V) {cout << "[" << s_cmd2.exec << "] [" << s_cmd2.file << "] [" << s_cmd2.argv << "]" << endl;}
+            s_cmd parsing_cmd(currexec, file, argv);
+            p_cmdList.push_back(parsing_cmd);
+            if (V) {cout << "[" << parsing_cmd.exec << "] [" << parsing_cmd.file << "] [" << parsing_cmd.argv << "]" << endl;}
             // get ready to parse the rest of the command
             cmdList.at(i).argv = cmdList.at(i).argv.substr(j+delim.length()); 
             boost::trim(cmdList.at(i).argv);
@@ -221,15 +242,35 @@ vector<s_cmd> parseCmd(vector<s_cmd> cmdList, string delim) {
     boost::trim(trimmed);
     file = trimmed.substr(0, trimmed.find(' '));
     argv = trimmed;
-    s_cmd s_cmd3(currexec, file, argv);
-    p_cmdList.push_back(s_cmd3);
-    if (V) {cout << "[" << s_cmd3.exec << "] [" << s_cmd3.file << "] [" << s_cmd3.argv << "]" << endl;}
+    s_cmd parsing_cmd(currexec, file, argv);
+    p_cmdList.push_back(parsing_cmd);
+    if (V) {cout << "[" << parsing_cmd.exec << "] [" << parsing_cmd.file << "] [" << parsing_cmd.argv << "]" << endl;}
   }
   cmdList = p_cmdList;
   if (V) {cout << "======== End Parsing for " << delim << " ========" << endl;}
-  if (V) {printlist(cmdList);}
-  if (V) {cout << color() << flush;}
+  if (V) {cout << printlist(cmdList);}
+  // if (V) {cout << color() << flush;}
   return p_cmdList;
+}
+
+
+
+
+vector<s_cmd> f_parenthesis(vector<s_cmd> cmdList) {
+  if (V) cout << "====== Start parenthesis fix ======\nBefore:" << endl;
+  if (V) cout << printlist(cmdList);
+  for(size_t i = 0; i< cmdList.size(); i++) {
+    if (cmdList.at(i).exec == "(") {
+      s_cmd f_p_cmd(";", cmdList.at(i).file, cmdList.at(i).argv);
+      cmdList.insert(cmdList.begin()+i+1, f_p_cmd);
+      cmdList.at(i).file = "";
+      cmdList.at(i).argv = "";
+    }
+  }
+  if (V) cout << "After:" << endl;
+  if (V) cout << printlist(cmdList);
+  if (V) cout << "======= End parenthesis fix =======" << endl;
+  return cmdList;
 }
 
 
@@ -237,37 +278,33 @@ vector<s_cmd> parseCmd(vector<s_cmd> cmdList, string delim) {
 
 
 
-
-
-
-
-
 vector<s_cmd> trimCmd(vector<s_cmd> cmdList) {
-  if (V) cout << color("green");
-  if (V) cout << "======= start trimCmd =======" << endl << "Before trim:" << endl;
-  if (V) printlist(cmdList);
+  // if (V) cout << color("green");
+  if (V) cout << "======= Start trimCmd =======" << endl << "Before trim:" << endl;
+  if (V) cout << printlist(cmdList);
   if (V) cout << "-------trimming-------" << endl;
   for (int i = cmdList.size()-1; i >= 0 ; i--) {
     if (V) cout << "Checking cmdList[" << i << "]..." << endl;
-    // if (V) printlist(cmdList);
-    if (cmdList.at(i).file == "") {
-      if (V) cout << "Empty command detected at cmdList[" << i << "]. Erasing..." << endl;
-      // if (V) cout << "====== size " << cmdList.size() << endl;
-      cmdList.erase(cmdList.begin()+i);
-      // if (V) cout << "Erased" << endl;
-      // if (i!=0) {
-      //   i--;
-      // }
-    } else if (cmdList.at(i).argv == cmdList.at(i).file) { // erasing filename from argv because we will not parse the cmdList anymore
+    // if (V) cout << printlist(cmdList);
+
+    // remove empty commands
+    /*if (cmdList.at(i).file == "") {
+      if ((cmdList.at(i).exec != "(") && (cmdList.at(i).exec != ")")) {
+        if (V) cout << "Empty command detected at cmdList[" << i << "]. Erasing..." << endl;
+        // if (V) cout << "====== size " << cmdList.size() << endl;
+        cmdList.erase(cmdList.begin()+i);
+        // if (V) cout << "Erased" << endl;
+      }
+    } else */if (cmdList.at(i).argv == cmdList.at(i).file) { // erasing filename from argv because we will not parse the cmdList anymore
       cmdList.at(i).argv = ""; // if No arguments 
     } else {
       cmdList.at(i).argv = cmdList.at(i).argv.substr(cmdList.at(i).argv.find(' ')+1); // trim filename out of arguments
     }
   }
   if (V) cout << "After trim:  " << endl;
-  if (V) printlist(cmdList);
+  if (V) cout << printlist(cmdList);
   if (V) cout << "======== end trimCmd ========" << endl;
-  if (V) cout << color() << flush;
+  // if (V) cout << color() << flush;
   return cmdList;
 }
 
@@ -291,7 +328,7 @@ o888o o888o o888o   "888" `Y8bod8P' d888b    o888o o888o `Y888""8o o888o
 */
 
 bool test(vector<string> argv) {
-  if (V) cout << color("green") << flush;
+  // if (V) cout << color("green") << flush;
   bool result = false;
   if (argv[0] == "-f") { // -f flag
     if (V) cout << "Check File" << endl;
@@ -335,7 +372,7 @@ bool test(vector<string> argv) {
       result = false;
     }
   }
-  if (V) cout << color() << flush;
+  // if (V) cout << color() << flush;
   return result;
 }
 
@@ -355,7 +392,7 @@ d88' `88b  `88b..8P'  d88' `88b d88' `"Y8 `888  `888    888   d88' `88b
 */
 
 int is_built_in(string file, vector<string> argv) {
-  if (V) cout << color("green") << flush;
+  // if (V) cout << color("green") << flush;
   // if "file argv" is a built in command then execute it and {return 1 if success, 0 if failed}, otherwise do nothing and return -1
   int executed = -1;
   // handle rshell built-in commands;
@@ -370,10 +407,12 @@ int is_built_in(string file, vector<string> argv) {
       V = true;
       cout << color() << flush;
       cout << "Verbose output is now turned on.\nToggle: verbose [on|off]" << endl;
+      cout << color("green") << flush;
     } else {
       V = false;
       cout << color() << flush;
       cout << "Verbose output is now turned off.\nToggle: verbose [on|off]" << endl;
+      cout << color("green") << flush;
     }
     executed = 1;
   }
@@ -390,7 +429,9 @@ int is_built_in(string file, vector<string> argv) {
 
   else if (file == "[") {
     if (argv.at(argv.size()-1) == "]") {
-      if (V) cout << color("green") << "[] detected, identified as alias to built-in cmd `test`." << endl << "argv.pop_back to erase ] and pass it to test function." << color() << flush;
+      // if (V) cout << << color("green") << flush;
+      if (V) cout << "[] detected, identified as alias to built-in cmd `test`." << endl << "argv.pop_back to erase ] and pass it to test function." << endl;
+      // if (V) cout << color() << flush;
       argv.pop_back();
       executed = 0;
       bool success = test(argv);
@@ -422,7 +463,7 @@ bool EXECUTE(string file, string argv) {
   if (argv.length() != 0) {
     argList = tokenize(argv);
     if (V) {
-      cout << color("green") << flush;
+      // cout << color("green") << flush;
       cout << "List of arguments:" << endl;
       for (size_t j = 0; j < argList.size(); j++) {
         cout << argList.at(j) << endl;
@@ -441,7 +482,8 @@ bool EXECUTE(string file, string argv) {
       args[i+1] = const_cast<char*>(argList.at(i).c_str());
     }
     args[i+1] = NULL;
-    if (V) cout << "================== EXECUTE START ==================" << color() << endl;
+    if (V) cout << "================== EXECUTE START ==================" << endl;
+    cout << color() << flush; 
     int success;
     int status;
     pid_t c_pid, pid;
@@ -494,45 +536,97 @@ bool EXECUTE(string file, string argv) {
 
 
 
-void execCommand(vector<s_cmd> cmdList) {
-  if (V) cout << color("green") << "=======generateExecCommand========" << endl;
+bool execCommand(vector<s_cmd> cmdList) {
+  // if (V) cout << color("green") << flush;
+  if (V) cout << "=======generateExecCommand========" << endl;
   // flags to check if we run current command based on previous command
   bool previousStatus = true;
   bool runCurrentCommand = true;
   for (size_t i = 0; i < cmdList.size(); i++) {
     if (V) cout << "We have " << cmdList.size() << " commands, now executing command " << i+1 << endl;
-    if (V) cout << "[" << cmdList.at(i).exec << "] [" << cmdList.at(i).file << "] [" << cmdList.at(i).argv << "]" << endl;
+    // if (V) cout << "[" << cmdList.at(i).exec << "] [" << cmdList.at(i).file << "] [" << cmdList.at(i).argv << "]" << endl;
+    if (V) cout << printlist(cmdList, i);
     if (V) cout << "First we check the exec bit: " << cmdList.at(i).exec << endl;
-    if (cmdList.at(i).exec == ";") {
+
+
+    // construct recursive function based on ()s
+    int parenthesis_count = 0;
+    if (cmdList.at(i).exec == "(") {
+      if (V) {cout << "Oooops we found a ( operator, push all commands before corresponding ) into a new cmdList and recurse execCommand." << endl;}
+      i++;
+      vector<s_cmd> child_cmdList;
+      for (size_t index = 0; i < cmdList.size(); index++, i++) {
+        if (V) cout << "Checking the exec bit of commands in parenthesis: " << cmdList.at(i).exec << endl;
+        if (cmdList.at(i).exec != ")") {
+          if (V) cout << "Get one, pushing into child_cmdList." << endl;
+          if (cmdList.at(i).exec == "(") {
+            if (V) cout << "Woow woow woow, another parenthesis? No problem, marked it!" << endl;
+            parenthesis_count++;
+          }
+          s_cmd child_cmd(cmdList.at(i).exec, cmdList.at(i).file, cmdList.at(i).argv);
+          child_cmdList.push_back(child_cmd);
+          if (V) cout << "Pushed in." << endl;
+          if (V) cout << printlist(child_cmdList);
+        } else {
+          if (V) cout << "We found a ) operator at " << i << "." << endl;
+          if (V) cout << printlist(cmdList, i);
+          parenthesis_count--;
+          s_cmd child_cmd(cmdList.at(i).exec, cmdList.at(i).file, cmdList.at(i).argv);
+          child_cmdList.push_back(child_cmd);
+          if (V) cout << "Pushed in." << endl;
+          if (V) cout << printlist(child_cmdList);
+          if (V) cout << "Check parenthesis_count to see if this is the corresponding parenthesis: " << parenthesis_count << endl;
+          if (parenthesis_count >= 0) {
+            if (V) cout << "No it is not the corresponding parenthesis. Keep pushing." << endl;
+          } else {
+            if (V) cout << "Yes it is the corresponding parenthesis. Prepare for executing." << endl;
+            if (V) cout << "Check runCurrentCommand to see if we need to run this part: " << runCurrentCommand << endl;
+            if (runCurrentCommand) {
+              if (V) cout << "Ok, enter recursive function." << endl;
+              previousStatus = execCommand(child_cmdList);
+            } else {
+              if (V) cout << "No, we don't need to run this part. Ignore and Next." << endl;
+            }
+            break;
+          }
+        }
+      }
+
+
+    } else if (cmdList.at(i).exec == ";") {
       if (V) cout << "Okay, run anyway." << endl;
       runCurrentCommand = true;
     } else if (cmdList.at(i).exec == "&&") {
       if (V) cout << "Let's see if our previous command executed successfully: ";
       if (!previousStatus) {
-        if (V) cout << "false. Do not execute this command." << endl;
+        if (V) cout << "false. Do not execute next command." << endl;
         runCurrentCommand = false;
       } else {
-        if (V) cout << "true. Execute this command." << endl;
+        if (V) cout << "true. Execute next command." << endl;
         runCurrentCommand = true;
       }
     } else if (cmdList.at(i).exec == "||") {
       if (V) cout << "Let's see if our previous command executed successfully: ";
       if (!previousStatus) {
-        if (V) cout << "false. Execute this command." << endl;
+        if (V) cout << "false. Execute next command." << endl;
         runCurrentCommand = true;
       } else {
-        if (V) cout << "true. Do not execute this command." << endl;
+        if (V) cout << "true. Do not execute next command." << endl;
         runCurrentCommand = false;
       }
     }
-    if (runCurrentCommand) {
-      if (V) cout << "So now we decided to execute this command." << endl;
+    if (cmdList.at(i).file == "") {
+      if (V) cout << "Empty line. Ignored. Next." << endl;
+    } else if (runCurrentCommand) {
+      if (V) cout << "So now we decided to execute next command." << endl;
       previousStatus = EXECUTE(cmdList.at(i).file, cmdList.at(i).argv);
-      if (V) cout << color("green") <<"=================== EXECUTE END ===================" << endl;
+      if (V) cout << color("green") << flush;
+      if (V) cout <<"=================== EXECUTE END ===================" << endl;
       if (V) cout << "Command " << i << " executed. isSuccess? " << previousStatus << endl;
     }
   }
-  if (V) cout << color() << flush;
+  if (V) cout << "Exiting function execCommand()" << endl;
+  return previousStatus;
 }
 
 
@@ -561,7 +655,9 @@ int newCmd() {
   // GET USER INPUT
   string newLine;
   getline(cin, newLine);
-
+  if (newLine == ""){
+    return 0;// if empty line
+  } 
   // override for testing
   bool test = false;
   if (newLine == "test1") {
@@ -588,9 +684,10 @@ int newCmd() {
     cout << color() << flush;
   }
 
+  cout << color("green") << flush;
   newLine = removeComment(newLine);
   if (newLine == ""){
-    return 0;// if empty line or quotation error
+    return 0;// if quotation error
   } 
   vector<s_cmd> cmdList;
   s_cmd s_cmd1(";", "", newLine);
@@ -600,6 +697,7 @@ int newCmd() {
   cmdList = parseCmd(cmdList, ";");
   cmdList = parseCmd(cmdList, "&&");
   cmdList = parseCmd(cmdList, "||");
+  cmdList = f_parenthesis(cmdList);
   cmdList = trimCmd(cmdList);
   execCommand(cmdList);
   return 0;

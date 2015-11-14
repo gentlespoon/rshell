@@ -110,7 +110,8 @@ string str_pos(string str, size_t pos) {
       oss << blk;
     }
     oss << endl << "pos (" << pos << ") out of range (" << l << ")" << endl;
-    oss << color();
+    // oss << color();
+    exit(1);
   }
   for (size_t i = 0; i < w; i++) oss << blk;
   oss << endl << str;
@@ -124,7 +125,6 @@ string str_pos(string str, size_t pos) {
 }
 
 vector<string> tokenize(string str) {
-  if (V) {cout << color("green");}
   if (V) {cout << "====== Start Tokenize ======" << endl;}
   vector<string> token;
   bool isInQuote = false;
@@ -163,7 +163,6 @@ vector<string> tokenize(string str) {
     }
   }
   if (V) {cout << endl << "======= End Tokenize =======" << endl;}
-  if (V) {cout << color();}
   return token;
 }
 
