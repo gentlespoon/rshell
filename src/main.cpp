@@ -547,15 +547,15 @@ bool execCommand(vector<s_cmd> cmdList) {
     // if (V) cout << "[" << cmdList.at(i).exec << "] [" << cmdList.at(i).file << "] [" << cmdList.at(i).argv << "]" << endl;
     if (V) cout << printlist(cmdList, i);
     if (V) cout << "First we check the exec bit: " << cmdList.at(i).exec << endl;
-
-
     // construct recursive function based on ()s
     int parenthesis_count = 0;
+    if (V) cout << "Now checking the exec bit of command " << i << endl;
+    if (V) cout << printlist(cmdList, i);
     if (cmdList.at(i).exec == "(") {
       if (V) {cout << "Oooops we found a ( operator, push all commands before corresponding ) into a new cmdList and recurse execCommand." << endl;}
       i++;
       vector<s_cmd> child_cmdList;
-      for (size_t index = 0; i < cmdList.size(); index++, i++) {
+      for (size_t index = 0; i < cmdList.size(); index++, i++) { 
         if (V) cout << "Checking the exec bit of commands in parenthesis: " << cmdList.at(i).exec << endl;
         if (cmdList.at(i).exec != ")") {
           if (V) cout << "Get one, pushing into child_cmdList." << endl;
@@ -590,6 +590,7 @@ bool execCommand(vector<s_cmd> cmdList) {
             break;
           }
         }
+        // if (V) cout << "cmdList.size() = " << cmdList.size() << "    index = " << index << "    i = " << i << endl;
       }
 
 
@@ -615,14 +616,20 @@ bool execCommand(vector<s_cmd> cmdList) {
         runCurrentCommand = false;
       }
     }
-    if (cmdList.at(i).file == "") {
-      if (V) cout << "Empty line. Ignored. Next." << endl;
-    } else if (runCurrentCommand) {
-      if (V) cout << "So now we decided to execute next command." << endl;
-      previousStatus = EXECUTE(cmdList.at(i).file, cmdList.at(i).argv);
-      if (V) cout << color("green") << flush;
-      if (V) cout <<"=================== EXECUTE END ===================" << endl;
-      if (V) cout << "Command " << i << " executed. isSuccess? " << previousStatus << endl;
+    try {
+      if (cmdList.at(i).file == "") {
+        if (V) cout << "Empty line. Ignored. Next." << endl;
+      } else if (runCurrentCommand) {
+        if (V) cout << "So now we decided to execute next command." << endl;
+        previousStatus = EXECUTE(cmdList.at(i).file, cmdList.at(i).argv);
+        if (V) cout << color("green") << flush;
+        if (V) cout <<"=================== EXECUTE END ===================" << endl;
+        if (V) cout << "Command " << i << " executed. isSuccess? " << previousStatus << endl;
+      }
+    } catch (std::exception const& e) {
+      cout << color("red", "bold");
+      cout << "Syntax error" << endl;
+      cout << color("green");
     }
   }
   if (V) cout << "Exiting function execCommand()" << endl;
