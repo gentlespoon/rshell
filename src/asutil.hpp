@@ -46,10 +46,13 @@ string print_v(vector<T> vec, size_t pos = SIZE_MAX, bool printEmpty = true) {
   if (pos == SIZE_MAX) {
     for (size_t i = 0; i < vec.size(); i++) {
       if ((vec[i] != "") || printEmpty) {
-        oss << i << "\t" << vec[i] << endl;
+        oss << i << "\t[" << vec[i] << "]" << endl;
       }
     }
   } else {
+    if (pos >= vec.size()) {
+      oss << "Pos " << pos << " out of range " << vec.size() << endl;
+    }
     for (size_t i = 0; i < vec.size(); i++) {
       if ((vec[i] != "") || printEmpty) {
         oss << i;
@@ -122,13 +125,12 @@ string str_pos(string str, size_t pos) {
   size_t w = l;
   if (pos > l) w = pos;
   if (pos >= l) {
-    oss << color("red", "bold");
+    oss << color("red");
     for (size_t i = 0; i < w; i++) {
       oss << blk;
     }
     oss << endl << "pos (" << pos << ") out of range (" << l << ")" << endl;
     // oss << color();
-    exit(1);
   }
   for (size_t i = 0; i < w; i++) oss << blk;
   oss << endl << str;
@@ -198,7 +200,7 @@ string str_swap(string str, string str_a, string str_b) {
 
 
 
-int getch() {
+int getkey() {
   int ch;
   struct termios t_old, t_new;
   tcgetattr(STDIN_FILENO, &t_old);

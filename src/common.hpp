@@ -14,14 +14,18 @@
 #include <unistd.h>
 #include <vector>
 
-std::string version = "20151110 Test command & Precedence Operators";
+using namespace std;
+
+string version = "20151110 Test command & Precedence Operators";
 bool V = false;
-std::string user = "user";
+string user = "user";
 char host[999] = "hostname";
 char chardir[BUFSIZ];
 char *charh = getenv("HOME");
-std::string dir;
-std::string home;
+string dir;
+string home;
+vector<string> cmdHistory;
+size_t cmdHistoryPos = 0;
     
 
 #endif

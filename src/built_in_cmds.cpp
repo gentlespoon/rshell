@@ -7,6 +7,7 @@ using namespace std;
 
 int test(vector<string> argv) { // -1 on fail || 0 on succ
   // if (V) cout << color("green") << flush;
+  if (argv.size() == 0) { return -1; }
   int result = -1;
   if (argv[0] == "-f") { // -f flag
     if (V) cout << "Check File" << endl;
@@ -87,8 +88,10 @@ int terminate(vector<string> argv) { // the only thing can happen is exit(0) so 
   cout << color() << flush;
   if (argv.size() != 0) {
     int exitcode = atoi(argv[0].c_str());
+    cout << "Exit with code " << exitcode << endl;
     exit(exitcode);
   } else {
+    cout << "Exit" << endl;
     exit(0);
   }
   return 0; // not necessary
@@ -125,6 +128,8 @@ int is_built_in(string file, vector<string> argv) {
   // if "file argv" is a built in command then execute it and {return 0 if success, -1 if failed}, otherwise do nothing and return 1
   int exitcode = 1;
   // handle rshell built-in commands;
+
+
   if (file == "exit") {
     exitcode = 0; // mark as internal command.
     return terminate(argv);
@@ -143,9 +148,7 @@ int is_built_in(string file, vector<string> argv) {
   else if (file == "[") {
     if (argv.at(argv.size()-1) == "]") {
       exitcode = -1; // mark as internal command.
-      // if (V) cout << << color("green") << flush;
       if (V) cout << "[] detected, identified as alias to built-in cmd `test`." << endl << "argv.pop_back to erase ] and pass it to test function." << endl;
-      // if (V) cout << color() << flush;
       argv.pop_back();
       return test(argv);
     }
@@ -154,6 +157,14 @@ int is_built_in(string file, vector<string> argv) {
   else if (file == "cd") {
     exitcode = -1; // mark as internal command.
     return cd(argv);
+  }
+
+  else if (file == "viewcmdhistory") {
+    exitcode = 0;
+    cout << color();
+    cout << print_v(cmdHistory, cmdHistoryPos);
+    cout << color("green");
+    return 0;
   }
 
   return exitcode;
