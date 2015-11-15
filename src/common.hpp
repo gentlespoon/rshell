@@ -16,7 +16,7 @@
 
 using namespace std;
 
-string version = "20151110 Test command & Precedence Operators";
+string version = "20151114 chdir & cmdHistory & Nav Keys";
 bool V = false;
 string user = "user";
 char host[999] = "hostname";

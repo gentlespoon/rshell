@@ -1,6 +1,6 @@
 // Author: Angda Song
 // Email: songangda@gmail.com
-// Version: 11/03/2015 7:20PM
+// Version: 11/14/2015 10:48PM
 // Build for personal use. May be used in future projects.
 // Functions:
 //   int in_vector(string, vector<string>);
@@ -10,6 +10,10 @@
 //   string str_pos(string, size_t);
 //   vector<string> tokenize(string);
 //   string str_swap(string, string, string);
+//   char getkey();
+// Variables:
+//   char KEY_LF;
+//   char KEY_CR;
 
 
 #ifndef _A_S_UTIL_
