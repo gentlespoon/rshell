@@ -131,7 +131,7 @@ string removeComment(string cmdLine) {
   cout << color("red") << flush;
   cout << "Syntax error: The line ends in a quote. \" expected."<< endl;
   cout << str_pos(cmdLine, cmdLine.length());
-  cout << color("green") << endl;
+  cout << color("green") << flush;
   return "";
   }
   if (V) cout << "[Outpt Line] " << cmdLine << endl << "======== End Remove Comment ========" << endl;
@@ -676,7 +676,7 @@ string getCmd() {
       cout << inchar << flush;
       cout << color("green") << flush;
       cursor++;
-      if (V) cout << str_pos(cmdBuffer, cursor);
+      if (V) cout << endl << str_pos(cmdBuffer, cursor);
     }
     // cout << cmdBuffer << endl;
   }

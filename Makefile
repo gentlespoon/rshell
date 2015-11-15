@@ -1,6 +1,6 @@
 all: rshell
 
-FLG=-g -Wall -Werror -ansi -pedantic -std=c++11
+FLG=-Wall -Werror -ansi -pedantic
 CPLR=g++
 DIR=bin
 

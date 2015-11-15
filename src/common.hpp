@@ -1,12 +1,18 @@
 #ifndef _COMMON_
 #define _COMMON_
 
+#ifndef SIZE_MAX
+#define SIZE_MAX 99999
+#endif
+
+
 #include <boost/algorithm/string.hpp>
+#include <cstdio>
 #include <cstdlib>
 #include <iostream>
 #include <sstream>
 #include <stddef.h>
-#include <cstdio>
+#include <stdint.h>
 #include <string>
 #include <sys/stat.h>
 #include <sys/types.h>

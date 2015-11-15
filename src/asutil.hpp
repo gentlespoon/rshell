@@ -83,9 +83,27 @@ string color(string color = "reset", string bold = "r", string ground = "f") {
     oss << f << b << flush;
   } else {
     // color handle
+    // c++11 required
+/*
     vector<string> colorlist {
       "black", "red", "green", "yellow", "blue", "purple", "cyan", "white", "", "default"
     };
+*/
+    // c++98 fallback
+    vector<string> colorlist;
+    colorlist.push_back("black");
+    colorlist.push_back("red");
+    colorlist.push_back("green");
+    colorlist.push_back("yellow");
+    colorlist.push_back("blue");
+    colorlist.push_back("purple");
+    colorlist.push_back("cyan");
+    colorlist.push_back("white");
+    colorlist.push_back("");
+    colorlist.push_back("default");
+
+
+    
     index = in_vector(color, colorlist);
     if (index == -1) {
       oss << "color() error: Unknown color option: " << color << endl << "Valid options: " << endl;
@@ -94,9 +112,27 @@ string color(string color = "reset", string bold = "r", string ground = "f") {
     }
     char c = index +'0';
     // bold handle
+    // c++11 required
+/*
     vector<string> boldlist {
       "r", "b", "", "", "", "", "", "", "", "", "regular", "bold"
     };
+*/
+    // c++98 fallback
+    vector<string> boldlist;
+    boldlist.push_back("r");
+    boldlist.push_back("b");
+    boldlist.push_back("");
+    boldlist.push_back("");
+    boldlist.push_back("");
+    boldlist.push_back("");
+    boldlist.push_back("");
+    boldlist.push_back("");
+    boldlist.push_back("");
+    boldlist.push_back("");
+    boldlist.push_back("regular");
+    boldlist.push_back("bold");
+
     index = in_vector(bold, boldlist);
     while (index >= 10) { index -= 10; }
     if (index == -1) {
@@ -105,10 +141,23 @@ string color(string color = "reset", string bold = "r", string ground = "f") {
       exit(1);
     }
     char b = index +'0';
+
+
     // fore/background handle
+    // c++11 required
+/*
     vector<string> groundlist {
       "", "", "", "f", "b"
     };
+*/ 
+    // c++98 fallback
+    vector<string> groundlist;
+    groundlist.push_back("");
+    groundlist.push_back("");
+    groundlist.push_back("");
+    groundlist.push_back("f");
+    groundlist.push_back("b");
+
     index = in_vector(ground, groundlist);
     if (index == -1) {
       oss << "color() error: Unknown ground option: " << ground << endl << "Valid options: " << endl;
