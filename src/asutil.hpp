@@ -19,6 +19,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <termios.h>
 
 using namespace std;
 
@@ -40,11 +41,26 @@ int in_vector(int x, vector<int> vec) {
 }
 
 template<typename T>
-string print_v(vector<T> vec, bool printEmpty = true) {
+string print_v(vector<T> vec, size_t pos = SIZE_MAX, bool printEmpty = true) {
   ostringstream oss;
-  for (size_t i = 0; i < vec.size(); i++) {
-    if ((vec[i] != "") || printEmpty) {
-      oss << i << "\t" << vec[i] << endl;
+  if (pos == SIZE_MAX) {
+    for (size_t i = 0; i < vec.size(); i++) {
+      if ((vec[i] != "") || printEmpty) {
+        oss << i << "\t" << vec[i] << endl;
+      }
+    }
+  } else {
+    for (size_t i = 0; i < vec.size(); i++) {
+      if ((vec[i] != "") || printEmpty) {
+        oss << i;
+        if (i==pos) {
+          oss << " -->\t";
+        }
+        else {
+          oss << "\t";
+        }
+        oss <<" [" << vec[i] << "]" << endl;
+      }
     }
   }
   return oss.str();
@@ -180,6 +196,25 @@ string str_swap(string str, string str_a, string str_b) {
 }
 
 
+
+
+int getch() {
+  int ch;
+  struct termios t_old, t_new;
+  tcgetattr(STDIN_FILENO, &t_old);
+  t_new = t_old;
+  t_new.c_lflag &= ~(ICANON | ECHO);
+  tcsetattr(STDIN_FILENO, TCSANOW, &t_new);
+  ch = getchar();
+  tcsetattr(STDIN_FILENO, TCSANOW, &t_old);
+  return ch;
+}
+
+
+
+char KEY_LF = 10;
+char KEY_CR = 13;
+// char KEY_UP[] = { 0x1b, '[', '0', ';', '3', '9', 'm', 0 };
 
 
 #endif
