@@ -333,7 +333,7 @@ d88' `88b  `88b..8P'  d88' `88b d88' `"Y8 `888  `888    888   d88' `88b
 
 
 
-bool EXECUTE(string file, string argv) {
+bool EXECUTE(string file, string argv, bool pipe = false) {
   vector<string> argList;
   if (argv.length() != 0) {
     argList = tokenize(argv);
@@ -361,6 +361,10 @@ bool EXECUTE(string file, string argv) {
     args[i+1] = NULL;
     if (V) cout << "================== EXECUTE START ==================" << endl;
     cout << color() << flush; 
+    if (pipe) { // if pipe redirect to /tmp/pipefile.tmp to avoid read only.
+      int pipeout = open("/tmp/pipefile.tmp", O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+      dup2(pipeout, 1);
+    }
     int success;
     int status;
     pid_t c_pid, pid;
@@ -428,6 +432,7 @@ bool execCommand(vector<s_cmd> cmdList) {
     int parenthesis_count = 0;
     if (V) cout << "Now checking the exec bit of command " << i << endl;
     if (V) cout << printlist(cmdList, i);
+
     if (cmdList.at(i).exec == "(") {
       if (V) {cout << "Oooops we found a ( operator, push all commands before corresponding ) into a new cmdList and recurse execCommand." << endl;}
       i++;
@@ -474,7 +479,9 @@ bool execCommand(vector<s_cmd> cmdList) {
     } else if (cmdList.at(i).exec == ";") {
       if (V) cout << "Okay, run anyway." << endl;
       runCurrentCommand = true;
-    } else if (cmdList.at(i).exec == "&&") {
+    }
+
+    else if (cmdList.at(i).exec == "&&") {
       if (V) cout << "Let's see if our previous command executed successfully: ";
       if (!previousStatus) {
         if (V) cout << "false. Do not execute next command." << endl;
@@ -483,7 +490,9 @@ bool execCommand(vector<s_cmd> cmdList) {
         if (V) cout << "true. Execute next command." << endl;
         runCurrentCommand = true;
       }
-    } else if (cmdList.at(i).exec == "||") {
+    }
+
+    else if (cmdList.at(i).exec == "||") {
       if (V) cout << "Let's see if our previous command executed successfully: ";
       if (!previousStatus) {
         if (V) cout << "false. Execute next command." << endl;
@@ -493,12 +502,50 @@ bool execCommand(vector<s_cmd> cmdList) {
         runCurrentCommand = false;
       }
     }
+
+    else if (cmdList.at(i).exec == "|") {
+      if (V) cout << "Piped." << endl;
+      cmdList.at(i).argv += " /tmp/pipefile.tmp"; // pass in pipefile as an argument
+      if (V) cout << "Let's see if our previous command executed successfully: ";
+      if (!previousStatus) {
+        if (V) cout << "false. Do not execute next command." << endl;
+        runCurrentCommand = false;
+      } else {
+        if (V) cout << "true. Execute next command." << endl;
+        runCurrentCommand = true;
+      }
+    }
+
+
+
+
     try {
       if (cmdList.at(i).file == "") {
         if (V) cout << "Empty line. Ignored. Next." << endl;
       } else if (runCurrentCommand) {
         if (V) cout << "So now we decided to execute next command." << endl;
-        previousStatus = EXECUTE(cmdList.at(i).file, cmdList.at(i).argv);
+
+        bool pipe = false;
+        if (i != (cmdList.size()-1)) {
+          if (V) cout << "Check the next command's exec bit to see if we need to do piping job: " << cmdList.at(i+1).exec << endl;
+          if (cmdList.at(i+1).exec == "|") {
+            if (V) cout << "Alright, piping requested. Setting pipe = true" << endl;
+            pipe = true;
+          } else {
+            if (V) cout << "No piping request." << endl;
+          }
+        } else {
+          if (V) cout << "This is already the last command, no need to check for piping exec bit." << endl;
+        }
+        int stdout = dup(1); // save stdout;
+        previousStatus = EXECUTE(cmdList.at(i).file, cmdList.at(i).argv, pipe);
+        if (pipe) { // restore stdout
+          dup2(stdout, 1);
+        }
+        if (cmdList.at(i).exec == "|") {
+          // /tmp/pipefile.tmp already used, remove it
+          remove("/tmp/pipefile.tmp"); // clean up pipefile.tmp
+        }
         if (V) cout << color("green") << flush;
         if (V) cout <<"=================== EXECUTE END ===================" << endl;
         if (V) cout << "Command " << i << " executed. isSuccess? " << previousStatus << endl;
@@ -509,6 +556,10 @@ bool execCommand(vector<s_cmd> cmdList) {
       cout << color("green") << flush;
     }
   }
+
+
+
+
   if (V) cout << "Exiting function execCommand()" << endl;
   return previousStatus;
 }
@@ -672,11 +723,15 @@ string getCmd() {
       } else {
         cmdBuffer += inchar;
       }
+      if (V) cout << endl << str_pos(cmdBuffer, cursor+1);
       cout << color() << flush;
-      cout << inchar << flush;
+      if (V) {
+        cout << cmdBuffer << flush;
+      } else {
+        cout << inchar << flush;
+      }
       if (V) cout << color("green") << flush;
       cursor++;
-      if (V) cout << endl << str_pos(cmdBuffer, cursor);
     }
     // cout << cmdBuffer << endl;
   }
@@ -732,7 +787,7 @@ int newCmd() {
     cout << color() << flush;
   }
 
-  cout << color("green") << flush;
+  if (V) cout << color("green") << flush;
 
   cmdBuffer = removeComment(cmdBuffer);
   if (cmdBuffer == ""){
@@ -746,6 +801,7 @@ int newCmd() {
   cmdList = parseCmd(cmdList, ";");
   cmdList = parseCmd(cmdList, "&&");
   cmdList = parseCmd(cmdList, "||");
+  cmdList = parseCmd(cmdList, "|");
   cmdList = f_parenthesis(cmdList);
   cmdList = trimCmd(cmdList);
   execCommand(cmdList);
@@ -763,6 +819,13 @@ int main(int argc, char *argv[]) {
   cout << color("yellow", "b");
   cout << "\n\nrShell [Version " << version << "]" << endl;
   cout << color("yellow");
+  cout << "rShell supports connectors:" << endl;
+  cout << "  ;                                   # Execute next command unconditionally." << endl;
+  cout << "  &&                                  # Execute next command if the previous command succ." << endl;
+  cout << "  ||                                  # Execute next command if the previous command fail." << endl;
+  cout << "  |                                   # Pipe the prev command's output to next command." << endl;
+  cout << "                                           ** NOT in the way bash does" << endl;
+  cout << "                                           ** rShell does this by redirecting prev command's stdout to a file and pass the file as the last argument to the next command." << endl;
   cout << "rShell built-in commands:" << endl;
   cout << "  cd [PATH]                           # Change working directory." << endl;
   cout << "  exit [0-9 (optional)]               # Exit rShell <with optional exit code>." << endl;

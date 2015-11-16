@@ -9,6 +9,7 @@
 #include <boost/algorithm/string.hpp>
 #include <cstdio>
 #include <cstdlib>
+#include <fcntl.h>
 #include <iostream>
 #include <sstream>
 #include <stddef.h>
