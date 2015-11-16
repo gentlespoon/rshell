@@ -271,6 +271,8 @@ int getkey() {
 
 char KEY_LF = 10;
 char KEY_CR = 13;
+char KEY_TAB = 9;
+char KEY_BKSP = 127;
 // char KEY_UP[] = { 0x1b, '[', '0', ';', '3', '9', 'm', 0 };
 
 

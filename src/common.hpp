@@ -11,6 +11,7 @@
 #include <cstdlib>
 #include <fcntl.h>
 #include <iostream>
+#include <fstream>
 #include <sstream>
 #include <stddef.h>
 #include <stdint.h>
