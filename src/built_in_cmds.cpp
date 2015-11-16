@@ -162,7 +162,7 @@ int is_built_in(string file, vector<string> argv) {
   else if (file == "viewcmdhistory") {
     exitcode = 0;
     cout << color();
-    cout << print_v(cmdHistory, cmdHistoryPos);
+    cout << print_v(cmdHistory, cmdHistoryPos-1);
     cout << color("green");
     return 0;
   }

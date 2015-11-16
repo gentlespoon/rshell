@@ -540,7 +540,7 @@ void printprompt() {
   cout << dir << flush;
   cout << color() << flush;
   cout << ":[rShell<" << cmdHistoryPos << ">]$ " << flush;
-  cout << color("green") << flush;
+  if (V) cout << color("green") << flush;
 }
 
 
@@ -582,7 +582,7 @@ string getCmd() {
         if (V) cout << str_pos(cmdBuffer, cursor);
         cout << color() << flush;
         cout << cmdBuffer << flush;
-        cout << color("green") << flush;
+        if (V) cout << color("green") << flush;
         // fix onscreen cursor position
         for (size_t i = cmdBuffer.length(); i > cursor; i--) {
           cout << "\b" << flush;
@@ -620,7 +620,7 @@ string getCmd() {
           cout << color() << flush;
           cout << cmdBuffer << flush;
           cursor = cmdBuffer.length();
-          cout << color("green") << flush;
+          if (V) cout << color("green") << flush;
         } else {
           if (V) cout << cmdBuffer << flush;
         }
@@ -638,7 +638,7 @@ string getCmd() {
           cout << color() << flush;
           cout << cmdBuffer << flush;
           cursor = cmdBuffer.length();
-          cout << color("green") << flush;
+          if (V) cout << color("green") << flush;
         } else {
           if (V) cout << cmdBuffer << flush;
         }
@@ -649,7 +649,7 @@ string getCmd() {
         if (cursor < cmdBuffer.size()) {
           cout << color() << flush;
           cout << cmdBuffer.at(cursor);
-          cout << color("green") << flush;
+          if (V) cout << color("green") << flush;
           cursor++;
           if (V) cout << str_pos(cmdBuffer, cursor);
         }
@@ -674,7 +674,7 @@ string getCmd() {
       }
       cout << color() << flush;
       cout << inchar << flush;
-      cout << color("green") << flush;
+      if (V) cout << color("green") << flush;
       cursor++;
       if (V) cout << endl << str_pos(cmdBuffer, cursor);
     }
@@ -694,7 +694,7 @@ string getCmd() {
 
 
 int newCmd() {
-  cout << color("green") << flush;
+  if (V) cout << color("green") << flush;
   string cmdBuffer = "";
   cmdHistory.push_back(cmdBuffer);
   printprompt();
@@ -765,13 +765,14 @@ int main(int argc, char *argv[]) {
   cout << color("yellow");
   cout << "rShell built-in commands:" << endl;
   cout << "  cd [PATH]                           # Change working directory." << endl;
-  cout << "  exit [0-9 <optional>]               # Exit rShell <with optional exit code>." << endl;
-  cout << "  test [-e|-f|-d <optional>] [PATH]   # Test file." << endl;
+  cout << "  exit [0-9 (optional)]               # Exit rShell <with optional exit code>." << endl;
+  cout << "  test [-e|-f|-d (optional)] [PATH]   # Test file." << endl;
   cout << "  verbose [on|off]                    # Toggle verbose output." << endl;
   cout << "  viewcmdhistory                      # View command history."  << endl;
-  cout << "  [ [-e|-f|-d <optional>] [PATH] ]    # Test file." << endl;
+  cout << "  [ [-e|-f|-d (optional)] [PATH] ]    # Test file." << endl;
   cout << "  UP/DOWN arrow key                   # Navigate through command history." << endl;
-  cout << "  LEFT/RIGHT arrow key                # Navigate through the cmdBuffer (insert mode." << endl;
+  cout << "  LEFT/RIGHT arrow key                # Navigate through the cmdBuffer (insert mode）." << endl;
+  cout << "  BACKSPACE                           # It took me quite a while to make this work." << endl;
   cout << endl;
   user = getlogin();
   gethostname(host, 999);
