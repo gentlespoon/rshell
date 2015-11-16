@@ -333,7 +333,7 @@ d88' `88b  `88b..8P'  d88' `88b d88' `"Y8 `888  `888    888   d88' `88b
 
 
 
-bool EXECUTE(string file, string argv, bool pipe = false) {
+bool EXECUTE(string file, string argv, string rdfile = "") {
   vector<string> argList;
   if (argv.length() != 0) {
     argList = tokenize(argv);
@@ -361,9 +361,9 @@ bool EXECUTE(string file, string argv, bool pipe = false) {
     args[i+1] = NULL;
     if (V) cout << "================== EXECUTE START ==================" << endl;
     cout << color() << flush; 
-    if (pipe) { // if pipe redirect to /tmp/pipefile.tmp to avoid read only.
-      int pipeout = open("/tmp/pipefile.tmp", O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
-      dup2(pipeout, 1);
+    if (rdfile != "") { // if pipe redirect to /tmp/pipefile.tmp to avoid read only.
+      int file = open(rdfile.c_str(), O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+      dup2(file, 1);
     }
     int success;
     int status;
@@ -503,8 +503,8 @@ bool execCommand(vector<s_cmd> cmdList) {
       }
     }
 
-    else if (cmdList.at(i).exec == "|") {
-      if (V) cout << "Piped." << endl;
+    else if (cmdList.at(i).exec == ">|") {
+      if (V) cout << "Filepiped." << endl;
       cmdList.at(i).argv += " /tmp/pipefile.tmp"; // pass in pipefile as an argument
       if (V) cout << "Let's see if our previous command executed successfully: ";
       if (!previousStatus) {
@@ -516,6 +516,11 @@ bool execCommand(vector<s_cmd> cmdList) {
       }
     }
 
+    else if (cmdList.at(i).exec == ">") {
+      if (V) cout << "Handled in the prev command as redirect output. Skip" << endl;
+        runCurrentCommand = false;
+    }
+
 
 
 
@@ -525,24 +530,30 @@ bool execCommand(vector<s_cmd> cmdList) {
       } else if (runCurrentCommand) {
         if (V) cout << "So now we decided to execute next command." << endl;
 
-        bool pipe = false;
+        string rdfile = "";
         if (i != (cmdList.size()-1)) {
-          if (V) cout << "Check the next command's exec bit to see if we need to do piping job: " << cmdList.at(i+1).exec << endl;
-          if (cmdList.at(i+1).exec == "|") {
-            if (V) cout << "Alright, piping requested. Setting pipe = true" << endl;
-            pipe = true;
-          } else {
-            if (V) cout << "No piping request." << endl;
+          if (V) cout << "Check the next command's exec bit to see if we need to do stdout redirect job: " << cmdList.at(i+1).exec << endl;
+          if (cmdList.at(i+1).exec == ">|") {
+            if (V) cout << "Alright, file piping requested. Setting filepipe = true; rdfile = /tmp/pipefile.tmp;" << endl;
+            rdfile = "/tmp/pipefile.tmp";
+          } else if (cmdList.at(i+1).exec == ">") {
+            if (V) cout << "Alright, stdout redirect requested. Setting rdfile = " << cmdList.at(i+1).file << endl;
+            if (cmdList.at(i+1).file == "") {
+              cout << color("red") << flush;
+              cout << "Syntax error: > no redirect path provided. Will output to stdout." << endl;
+              cout << color("green") << flush;
+            }
+            rdfile = cmdList.at(i+1).file;
           }
         } else {
           if (V) cout << "This is already the last command, no need to check for piping exec bit." << endl;
         }
         int stdout = dup(1); // save stdout;
-        previousStatus = EXECUTE(cmdList.at(i).file, cmdList.at(i).argv, pipe);
-        if (pipe) { // restore stdout
+        previousStatus = EXECUTE(cmdList.at(i).file, cmdList.at(i).argv, rdfile);
+        if (rdfile != "") { // restore stdout
           dup2(stdout, 1);
         }
-        if (cmdList.at(i).exec == "|") {
+        if (cmdList.at(i).exec == ">|") {
           // /tmp/pipefile.tmp already used, remove it
           remove("/tmp/pipefile.tmp"); // clean up pipefile.tmp
         }
@@ -801,7 +812,8 @@ int newCmd() {
   cmdList = parseCmd(cmdList, ";");
   cmdList = parseCmd(cmdList, "&&");
   cmdList = parseCmd(cmdList, "||");
-  cmdList = parseCmd(cmdList, "|");
+  cmdList = parseCmd(cmdList, ">|");
+  cmdList = parseCmd(cmdList, ">");
   cmdList = f_parenthesis(cmdList);
   cmdList = trimCmd(cmdList);
   execCommand(cmdList);
@@ -826,6 +838,7 @@ int main(int argc, char *argv[]) {
   cout << "  |                                   # Pipe the prev command's output to next command." << endl;
   cout << "                                           ** NOT in the way bash does" << endl;
   cout << "                                           ** rShell does this by redirecting prev command's stdout to a file and pass the file as the last argument to the next command." << endl;
+  cout << "  > [PATH]                            # Redirect stdout to a file." << endl;
   cout << "rShell built-in commands:" << endl;
   cout << "  cd [PATH]                           # Change working directory." << endl;
   cout << "  exit [0-9 (optional)]               # Exit rShell <with optional exit code>." << endl;
