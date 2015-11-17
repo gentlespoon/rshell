@@ -752,7 +752,7 @@ string getCmd() {
     }
 
 
-    else if ((inchar == KEY_LF)||(inchar == KEY_CR)) { // if ENTER
+    else if ((inchar == KEY_LF)||(inchar == KEY_CR)) { // if ENTER/RETURN
       cout << endl;
       enter = true;
       cmdHistoryPos = cmdHistory.size();
@@ -772,7 +772,7 @@ string getCmd() {
 
 
       if (inchar == 'A') { // A up, 
-        if (V) cout << "ANSI_ESCAPE_UP detected, looking into cmdHistory." << endl;
+        if (V) cout << endl << "ANSI_ESCAPE_UP detected, looking into cmdHistory." << endl;
         size_t sz = cmdHistory.size();
         if (cmdHistoryPos == sz-1) {
           cmdHistory.at(cmdHistoryPos) = cmdBuffer;
@@ -794,7 +794,7 @@ string getCmd() {
       }
 
       else if (inchar == 'B') { // B down, c right, d left
-        if (V) cout << "ANSI_ESCAPE_DOWN detected, looking into cmdHistory." << endl;
+        if (V) cout << endl << "ANSI_ESCAPE_DOWN detected, looking into cmdHistory." << endl;
         if (cmdHistoryPos != cmdHistory.size()-1) {
           for (size_t i = 0; i < cmdBuffer.length(); i++) {
             cout << "\b \b" << flush;
@@ -812,40 +812,68 @@ string getCmd() {
       }
 
       else if (inchar == 'C') { // C right
-        if (V) cout << "ANSI_ESCAPE_RIGHT detected." << endl;
+        if (V) cout << endl << "ANSI_ESCAPE_RIGHT detected." << endl;
         if (cursor < cmdBuffer.size()) {
-          cout << color() << flush;
-          cout << cmdBuffer.at(cursor);
-          if (V) cout << color("green") << flush;
-          cursor++;
-          if (V) cout << str_pos(cmdBuffer, cursor);
+          if (V) {
+            cout << str_pos(cmdBuffer, cursor);
+            cout << color() << flush;
+            cout << cmdBuffer << flush;
+            for(size_t pos = cursor+1; pos < cmdBuffer.size(); pos++) {
+              cout << "\b";
+            }
+            cout << color("green") << flush;
+          } else {
+            cout << color() << flush;
+            cout << cmdBuffer.at(cursor);
+            if (V) cout << color("green") << flush;
+          }
+          // if (V) cout << color("green") << flush;
+          // if (V) cout << str_pos(cmdBuffer, cursor);
+        cursor++;
         }
       }
 
       else if (inchar == 'D') { // D left
-        if (V) cout << "ANSI_ESCAPE_LEFT detected." << endl;
+        if (V) cout << endl << "ANSI_ESCAPE_LEFT detected." << endl;
         if (cursor != 0) {
           cout << "\b";  //Cursor moves 1 position backwards
           cursor--;
-          if (V) cout << str_pos(cmdBuffer, cursor);
+          if (V) {
+            cout << str_pos(cmdBuffer, cursor);
+            cout << color() << flush;
+            cout << cmdBuffer << flush;
+            for(size_t pos = cursor; pos < cmdBuffer.size(); pos++) {
+              cout << "\b";
+            }
+            cout << color("green") << flush;
+          }
         }
       }
 
 
     } else { // If not special characters
-      if (cursor < cmdBuffer.size()) {
-        string chr(1, inchar);
-        cmdBuffer.replace(cursor, 1, chr);
-      } else {
-        cmdBuffer += inchar;
-      }
-      if (V) cout << endl << str_pos(cmdBuffer, cursor+1);
+      if (V) cout << endl << str_pos(cmdBuffer, cursor);
       cout << color() << flush;
-      if (V) {
-        cout << cmdBuffer << flush;
-      } else {
-        cout << inchar << flush;
-        // cout << int(inchar) << flush;
+      if (cursor < cmdBuffer.size()) { // if not at the end; need to move cursor and reprint
+        string chr(1, inchar);
+        cmdBuffer.insert(cursor, chr);
+        if (V) {
+          cout << cmdBuffer << flush;
+        } else {
+          for(size_t pos = cursor; pos < cmdBuffer.size(); pos++) {
+            cout << cmdBuffer.at(pos);
+          }
+        }
+        for(size_t pos = cursor; pos < cmdBuffer.size()-1; pos++) {
+          cout << "\b";
+        }
+      } else { // if at the end; no need to move cursor or reprint
+        cmdBuffer += inchar;
+        if (V) {
+          cout << cmdBuffer << flush;
+        } else {
+          cout << inchar << flush;
+        }
       }
       if (V) cout << color("green") << flush;
       cursor++;
@@ -934,13 +962,13 @@ int newCmd() {
 
 
 int main(int argc, char *argv[]) {
-  cout << color("yellow", "b");
+  cout << color("cyan", "b");
   cout << "\n\nrShell [Version " << version << "]" << endl;
   cout << color("yellow");
-  cout << endl << "rShell supports all commands in /bin/ and /usr/bin/ ." << endl;
-  cout << "rShell supports ./executable to execute file in current working directory." << endl;
+  // cout << "rShell supports all commands in /bin/ and /usr/bin/ ." << endl;
+  // cout << "rShell supports ./executable to execute file in current working directory." << endl;
   cout << "rShell supports absolute and relative path to executable." << endl;
-  cout << endl << "rShell built-in commands:" << endl;
+  cout << color("yellow", "b")  << "rShell built-in commands:" << color("yellow")  << endl;
   cout << "  cd [PATH]                           # Change working directory." << endl;
   cout << "  exit [0-9 (optional)]               # Exit rShell <with optional exit code>." << endl;
   cout << "  test [-e|-f|-d (optional)] [PATH]   # Test file." << endl;
@@ -948,16 +976,15 @@ int main(int argc, char *argv[]) {
   cout << "  viewcmdhistory                      # View command history."  << endl;
   cout << "  [ [-e|-f|-d (optional)] [PATH] ]    # Test file." << endl;
   cout << "  UP/DOWN arrow key                   # Navigate through command history." << endl;
-  cout << "  LEFT/RIGHT arrow key                # Navigate through the cmdBuffer (insert mode）." << endl;
-  cout << "  BACKSPACE                           # It took me quite a while to make this work." << endl;
-  cout << endl << "rShell supports connectors:" << endl;
-  cout << "  ;                                   # Execute next command unconditionally." << endl;
-  cout << "  &&                                  # Execute next command if the previous command succ." << endl;
-  cout << "  ||                                  # Execute next command if the previous command fail." << endl;
-  cout << "  |                                   # Filepipe the prev command's output to next command." << endl;
-  cout << "     ** NOT in the way Unix pipe does. rShell does this by redirecting prev command's stdout to a FILE and pass the FILE as the LAST ARGUMENT to the next command." << endl;
+  cout << "  LEFT/RIGHT arrow key                # Navigate in the cmdBuffer." << endl;
+  cout << "  BACKSPACE                           # Took me quite a while to make this work." << endl;
+  cout << color("yellow", "b") << "rShell supports connectors:" << color("yellow") << endl;
+  cout << "  ;                                   # Execute unconditionally." << endl;
+  cout << "  &&                                  # Execute if the previous command succ." << endl;
+  cout << "  ||                                  # Execute if the previous command fail." << endl;
+  // cout << "  >|                                  # Filepipe the prev command's output to next command." << endl;
+  // cout << "     ** NOT in the way Unix pipe does. rShell does this by redirecting prev command's stdout to a FILE and pass the FILE as the LAST ARGUMENT to the next command." << endl;
   cout << "  > [PATH]                            # Redirect stdout to a file." << endl;
-  
   cout << endl;
   user = getlogin();
   gethostname(host, 999);
