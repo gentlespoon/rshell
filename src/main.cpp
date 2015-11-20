@@ -672,7 +672,7 @@ string getCmd() {
 
     else if (inchar == KEY_TAB) { // tab auto complete
       if (V) cout << endl << "EXECUTE(\"ls\", \"\", \"/tmp/pathlist.tmp\");" << endl;
-      int stdout = dup(1);
+      // int stdout = dup(1);
       remove("/tmp/pathlist.tmp");
       EXECUTE("ls", "", "/tmp/pathlist.tmp"); // list files in CWD and redirect output to a file for scanning
       fstream file;
