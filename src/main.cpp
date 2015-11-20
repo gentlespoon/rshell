@@ -5,7 +5,7 @@
 using namespace std;
 
 
-
+bool ERR = false;
 /*
              .                                      .            
            .o8                                    .o8            
@@ -435,6 +435,10 @@ bool EXECUTE(string file, string argv = "", string rdfile = "") {
 
 
 bool execCommand(vector<s_cmd> cmdList) {
+  vector<string> connectors;
+  connectors.push_back("&&");
+  connectors.push_back("||");
+  connectors.push_back(";");
   // if (V) cout << color("green") << flush;
   if (V) cout << "=======generateExecCommand========" << endl;
   // flags to check if we run current command based on previous command
@@ -451,6 +455,15 @@ bool execCommand(vector<s_cmd> cmdList) {
     if (V) cout << printlist(cmdList, i);
 
     if (cmdList.at(i).exec == "(") {
+      if (V) {cout << "Checking previous command exec" << endl;}
+      if (i != 0) {
+        if ((in_vector(cmdList.at(i-1).exec, connectors)) && (cmdList.at(i-1).file != "")) {
+          cout << color("red") << flush;
+          cout << "Syntax error." << flush;
+          cout << color("green") << endl;
+          return false;
+        }
+      }
       if (V) {cout << "Oooops we found a ( operator, push all commands before corresponding ) into a new cmdList and recurse execCommand." << endl;}
       i++;
       vector<s_cmd> child_cmdList;
@@ -468,6 +481,13 @@ bool execCommand(vector<s_cmd> cmdList) {
           if (V) cout << printlist(child_cmdList);
         } else {
           if (V) cout << "We found a ) operator at " << i << "." << endl;
+          if (V) cout << "Checking this command file" << endl;
+          if (cmdList.at(i).file != "") {
+            cout << color("red") << flush;
+            cout << "Syntax error." << flush;
+            cout << color("green") << endl;
+            return false;
+          }
           if (V) cout << printlist(cmdList, i);
           parenthesis_count--;
           s_cmd child_cmd(cmdList.at(i).exec, cmdList.at(i).file, cmdList.at(i).argv);
@@ -894,6 +914,7 @@ string getCmd() {
 
 
 int newCmd() {
+  ERR = false;
   if (V) cout << color("green") << flush;
   string cmdBuffer = "";
   cmdHistory.push_back(cmdBuffer);
