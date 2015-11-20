@@ -5,7 +5,6 @@
 using namespace std;
 
 
-bool ERR = false;
 /*
              .                                      .            
            .o8                                    .o8            
@@ -914,7 +913,6 @@ string getCmd() {
 
 
 int newCmd() {
-  ERR = false;
   if (V) cout << color("green") << flush;
   string cmdBuffer = "";
   cmdHistory.push_back(cmdBuffer);
