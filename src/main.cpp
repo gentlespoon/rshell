@@ -52,7 +52,7 @@ string printlist(vector<s_cmd> cmdList, size_t pos = SIZE_MAX) {
     }
   } else {
     if (pos >= cmdList.size()) {
-      oss << color("red", "bold");
+      oss << color("red");
       oss << endl << "pos (" << pos << ") out of range (" << cmdList.size() << ")" << endl;
       // oss << color();
     }
@@ -110,7 +110,7 @@ string removeComment(string cmdLine) {
       if (V) cout << "This is a slashed quotation mark in a quote." << endl;
     }
     else {
-      if (V) cout << color("yellow") << "** Notice: There might be a slashed quotation mark outside a quote." << color("green") << endl; // downgrade from WARNING to NOTICE
+      /*if (V)*/ cout << color("yellow") << "** Notice: There might be a slashed quotation mark outside a quote." << color("green") << endl; // downgrade from WARNING to NOTICE
     }
     if (V) cout << "[isInQuote] " << isInQuote << endl;
     }
@@ -128,7 +128,10 @@ string removeComment(string cmdLine) {
   }
   }
   if (isInQuote) { // when the line ends we are still in a quote
-  cout << color("red", "b") << "** WARNING: The line ends in a quote. \" expected." << color("green") << endl;
+  cout << color("red") << flush;
+  cout << "Syntax error: The line ends in a quote. \" expected."<< endl;
+  cout << str_pos(cmdLine, cmdLine.length());
+  cout << color("green") << flush;
   return "";
   }
   if (V) cout << "[Outpt Line] " << cmdLine << endl << "======== End Remove Comment ========" << endl;
@@ -501,9 +504,9 @@ bool execCommand(vector<s_cmd> cmdList) {
         if (V) cout << "Command " << i << " executed. isSuccess? " << previousStatus << endl;
       }
     } catch (std::exception const& e) {
-      cout << color("red", "bold");
+      cout << color("red") << flush;
       cout << "Syntax error" << endl;
-      cout << color("green");
+      cout << color("green") << flush;
     }
   }
   if (V) cout << "Exiting function execCommand()" << endl;
@@ -527,53 +530,216 @@ o888oo  oooo d8b  .oooo.   ooo. .oo.  .oo.    .ooooo.
 o888o   d888b    `Y888""8o o888o o888o o888o `Y8bod8P' 
 */
 
+void printprompt() {
+  // to distinguish with system shell I use "[rShell<#>]$" instead of "$"
+  cout << color("green", "bold") << flush;
+  cout << "" << user << "@" << host << flush;
+  cout << color() << flush;
+  cout << ":" << flush;
+  cout << color("cyan", "bold") << flush;
+  cout << dir << flush;
+  cout << color() << flush;
+  cout << ":[rShell<" << cmdHistoryPos << ">]$ " << flush;
+  if (V) cout << color("green") << flush;
+}
+
+
+
+
+
+
+
+
+
+
+string getCmd() {
+  // GET USER INPUT // replace getline
+  string cmdBuffer = "";
+  size_t cursor = 0;
+  char inchar = 0;
+  bool enter = false;
+  while (!enter) {
+    inchar = getkey();
+    /*if (V) cout << endl << "Key pressed. cmdBuffer << ";
+    if (V) cout << color("yellow") << flush;
+    if (V) cout << cmdBuffer;
+    if (V) cout << color("green") << flush << endl;*/
+    if (inchar == 127) { // 127 = backspace
+      if (V) cout << "Backspace detected." << endl;
+      if (cmdBuffer.length() != 0) {
+        // erase everything <cmdBuffer> on screen
+        for (size_t i = cursor; i < cmdBuffer.length(); i++) {
+          cout << " " << flush;
+        }
+        for (size_t i = 0; i < cmdBuffer.length(); i++) {
+          cout << "\b \b" << flush;
+        }
+        cursor--;
+        if (V) cout << "Erasing..." << endl;
+        if (V) cout << str_pos(cmdBuffer, cursor);
+        cmdBuffer.erase(cmdBuffer.begin()+cursor);
+        if (V) cout << "Erased." << endl;
+        if (V) cout << str_pos(cmdBuffer, cursor);
+        cout << color() << flush;
+        cout << cmdBuffer << flush;
+        if (V) cout << color("green") << flush;
+        // fix onscreen cursor position
+        for (size_t i = cmdBuffer.length(); i > cursor; i--) {
+          cout << "\b" << flush;
+        }
+      }
+    } else if ((inchar == KEY_LF)||(inchar == KEY_CR)) { // if ENTER
+      cout << endl;
+      enter = true;
+      cmdHistoryPos = cmdHistory.size();
+      cmdHistory.pop_back();
+      if (cmdBuffer == ""){
+        if (V) cout << "Empty Line." << endl;
+        return "";// if empty line
+      } 
+      cmdHistory.push_back(cmdBuffer);
+    } else if (inchar == 0x1b) { // 0x1b = ESC. 
+      for (int ESC_IGNORE = 2; ESC_IGNORE > 0; ESC_IGNORE--) {
+        inchar = getkey();
+      }
+
+
+      if (inchar == 'A') { // A up, 
+        if (V) cout << "ANSI_ESCAPE_UP detected, looking into cmdHistory." << endl;
+        size_t sz = cmdHistory.size();
+        if (cmdHistoryPos == sz-1) {
+          cmdHistory.at(cmdHistoryPos) = cmdBuffer;
+        }
+        if (cmdHistoryPos != 0) {
+          for (size_t i = 0; i < cmdBuffer.length(); i++) {
+            cout << "\b \b" << flush;
+          }
+          cmdHistoryPos--;
+          cmdBuffer = cmdHistory.at(cmdHistoryPos);
+          if (V) cout << "cmdHistory:" << endl << print_v(cmdHistory, cmdHistoryPos);
+          cout << color() << flush;
+          cout << cmdBuffer << flush;
+          cursor = cmdBuffer.length();
+          if (V) cout << color("green") << flush;
+        } else {
+          if (V) cout << cmdBuffer << flush;
+        }
+      }
+
+      else if (inchar == 'B') { // B down, c right, d left
+        if (V) cout << "ANSI_ESCAPE_DOWN detected, looking into cmdHistory." << endl;
+        if (cmdHistoryPos != cmdHistory.size()-1) {
+          for (size_t i = 0; i < cmdBuffer.length(); i++) {
+            cout << "\b \b" << flush;
+          }
+          cmdHistoryPos++;
+          cmdBuffer = cmdHistory.at(cmdHistoryPos);
+          if (V) cout << "cmdHistory:" << endl << print_v(cmdHistory, cmdHistoryPos);
+          cout << color() << flush;
+          cout << cmdBuffer << flush;
+          cursor = cmdBuffer.length();
+          if (V) cout << color("green") << flush;
+        } else {
+          if (V) cout << cmdBuffer << flush;
+        }
+      }
+
+      else if (inchar == 'C') { // C right
+        if (V) cout << "ANSI_ESCAPE_RIGHT detected." << endl;
+        if (cursor < cmdBuffer.size()) {
+          cout << color() << flush;
+          cout << cmdBuffer.at(cursor);
+          if (V) cout << color("green") << flush;
+          cursor++;
+          if (V) cout << str_pos(cmdBuffer, cursor);
+        }
+      }
+
+      else if (inchar == 'D') { // D left
+        if (V) cout << "ANSI_ESCAPE_LEFT detected." << endl;
+        if (cursor != 0) {
+          cout << "\b";  //Cursor moves 1 position backwards
+          cursor--;
+          if (V) cout << str_pos(cmdBuffer, cursor);
+        }
+      }
+
+
+    } else {
+      if (cursor < cmdBuffer.size()) {
+        string chr(1, inchar);
+        cmdBuffer.replace(cursor, 1, chr);
+      } else {
+        cmdBuffer += inchar;
+      }
+      cout << color() << flush;
+      cout << inchar << flush;
+      if (V) cout << color("green") << flush;
+      cursor++;
+      if (V) cout << endl << str_pos(cmdBuffer, cursor);
+    }
+    // cout << cmdBuffer << endl;
+  }
+  return cmdBuffer;
+}
+
+
+
+
+
+
+
+
+
+
 
 int newCmd() {
-  // to distinguish with system shell I use "[R]$" instead of "$"
-  cout << color("green", "bold") << "" << user << "@" << host << flush;
-  cout << color() << ":" << flush;
-  cout << color("blue", "bold") << dir << flush;
-  cout << color() << "[R]$ " << flush;
+  if (V) cout << color("green") << flush;
+  string cmdBuffer = "";
+  cmdHistory.push_back(cmdBuffer);
+  printprompt();
   
-  // GET USER INPUT
-  string newLine;
-  getline(cin, newLine);
-  if (newLine == ""){
-    return 0;// if empty line
+  cmdBuffer = getCmd();
+  
+  // getline(cin, cmdBuffer);
+  if (cmdBuffer == ""){
+    if (V) cout << "Quotation Error." << endl;
+    return 0;// if quotation error
   } 
   // override for testing
   bool test = false;
-  if (newLine == "test1") {
+  if (cmdBuffer == "test1") {
     // but as long as there's no multiple \"s in a quote, it will function well.
-    newLine = "echo \"/bin/bash\" \"/bin/bash# This Part is a\\ # inside a quote\"; echo \"Hello World\" #This is a real quote ";
+    cmdBuffer = "echo \"/bin/bash\" \"/bin/bash# This Part is a\\ # inside a quote\"; echo \"Hello World\" #This is a real quote ";
     test = true;
-    //newLine = "cp \"/bin/bash\" \"/bin/bash# This Part is a\\\" # inside a quote\"; echo \"Hello World\" #This is a real quote ";
-  } else if (newLine == "test2") {
-    newLine = "ls -a; echo hallo welt && mkdir test || echo world; git status; exit; ls -l";
+    //cmdBuffer = "cp \"/bin/bash\" \"/bin/bash# This Part is a\\\" # inside a quote\"; echo \"Hello World\" #This is a real quote ";
+  } else if (cmdBuffer == "test2") {
+    cmdBuffer = "ls -a; echo hallo welt && mkdir test || echo world; git status; exit; ls -l";
     test = true;
-  } else if (newLine == "test3") {
-    newLine = "ls & ls && ls";
+  } else if (cmdBuffer == "test3") {
+    cmdBuffer = "ls & ls && ls";
     test = true;
-  } else if (newLine == "test4") {
-    newLine = "echo \"Hello && echo World\" && ls";
+  } else if (cmdBuffer == "test4") {
+    cmdBuffer = "echo \"Hello && echo World\" && ls";
     test = true;
-  } else if (newLine == "test5") {
-    newLine = "(echo A && echo B) || (echo C && echo D)";
+  } else if (cmdBuffer == "test5") {
+    cmdBuffer = "(echo A && echo B) || (echo C && echo D)";
     test = true;
   }
   if (test) { 
     cout << color("yellow", "b") << "Test stdin override << ";
-    cout << color("yellow", "r") << newLine << endl;
+    cout << color("yellow", "r") << cmdBuffer << endl;
     cout << color() << flush;
   }
 
   cout << color("green") << flush;
-  newLine = removeComment(newLine);
-  if (newLine == ""){
+
+  cmdBuffer = removeComment(cmdBuffer);
+  if (cmdBuffer == ""){
     return 0;// if quotation error
   } 
   vector<s_cmd> cmdList;
-  s_cmd s_cmd1(";", "", newLine);
+  s_cmd s_cmd1(";", "", cmdBuffer);
   cmdList.push_back(s_cmd1);
   cmdList = parseCmd(cmdList, "(");
   cmdList = parseCmd(cmdList, ")");
@@ -596,19 +762,26 @@ int newCmd() {
 int main(int argc, char *argv[]) {
   cout << color("yellow", "b");
   cout << "\n\nrShell [Version " << version << "]" << endl;
-  cout << color();
-  cout << "Use \"verbose [on|off]\" to toggle verbose output."  << endl << endl;
+  cout << color("yellow");
+  cout << "rShell built-in commands:" << endl;
+  cout << "  cd [PATH]                           # Change working directory." << endl;
+  cout << "  exit [0-9 (optional)]               # Exit rShell <with optional exit code>." << endl;
+  cout << "  test [-e|-f|-d (optional)] [PATH]   # Test file." << endl;
+  cout << "  verbose [on|off]                    # Toggle verbose output." << endl;
+  cout << "  viewcmdhistory                      # View command history."  << endl;
+  cout << "  [ [-e|-f|-d (optional)] [PATH] ]    # Test file." << endl;
+  cout << "  UP/DOWN arrow key                   # Navigate through command history." << endl;
+  cout << "  LEFT/RIGHT arrow key                # Navigate through the cmdBuffer (insert mode）." << endl;
+  cout << "  BACKSPACE                           # It took me quite a while to make this work." << endl;
+  cout << endl;
   user = getlogin();
   gethostname(host, 999);
   getcwd(chardir,BUFSIZ);
   dir = chardir;
   home = charh;
   dir = str_swap(dir, home, "~");
-  // cout << home << endl;
-  // cout << dir << endl;
   while (1) {
     newCmd();
   }
-  cout << endl << endl; // kind of... clear the screen
   return 0;
 }

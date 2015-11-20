@@ -1,12 +1,18 @@
 #ifndef _COMMON_
 #define _COMMON_
 
+#ifndef SIZE_MAX
+#define SIZE_MAX 99999
+#endif
+
+
 #include <boost/algorithm/string.hpp>
+#include <cstdio>
 #include <cstdlib>
 #include <iostream>
 #include <sstream>
 #include <stddef.h>
-#include <stdio.h>
+#include <stdint.h>
 #include <string>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -14,14 +20,18 @@
 #include <unistd.h>
 #include <vector>
 
-std::string version = "20151110 Test command & Precedence Operators";
-bool V = true;
-std::string user = "user";
+using namespace std;
+
+string version = "20151114 chdir & cmdHistory & Nav Keys";
+bool V = false;
+string user = "user";
 char host[999] = "hostname";
 char chardir[BUFSIZ];
 char *charh = getenv("HOME");
-std::string dir;
-std::string home;
+string dir;
+string home;
+vector<string> cmdHistory;
+size_t cmdHistoryPos = 0;
     
 
 #endif

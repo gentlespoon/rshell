@@ -1,6 +1,6 @@
 // Author: Angda Song
 // Email: songangda@gmail.com
-// Version: 11/03/2015 7:20PM
+// Version: 11/14/2015 10:48PM
 // Build for personal use. May be used in future projects.
 // Functions:
 //   int in_vector(string, vector<string>);
@@ -10,6 +10,10 @@
 //   string str_pos(string, size_t);
 //   vector<string> tokenize(string);
 //   string str_swap(string, string, string);
+//   char getkey();
+// Variables:
+//   char KEY_LF;
+//   char KEY_CR;
 
 
 #ifndef _A_S_UTIL_
@@ -19,6 +23,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <termios.h>
 
 using namespace std;
 
@@ -40,11 +45,29 @@ int in_vector(int x, vector<int> vec) {
 }
 
 template<typename T>
-string print_v(vector<T> vec, bool printEmpty = true) {
+string print_v(vector<T> vec, size_t pos = SIZE_MAX, bool printEmpty = true) {
   ostringstream oss;
-  for (size_t i = 0; i < vec.size(); i++) {
-    if ((vec[i] != "") || printEmpty) {
-      oss << i << "\t" << vec[i] << endl;
+  if (pos == SIZE_MAX) {
+    for (size_t i = 0; i < vec.size(); i++) {
+      if ((vec[i] != "") || printEmpty) {
+        oss << i << "\t[" << vec[i] << "]" << endl;
+      }
+    }
+  } else {
+    if (pos >= vec.size()) {
+      oss << "Pos " << pos << " out of range " << vec.size() << endl;
+    }
+    for (size_t i = 0; i < vec.size(); i++) {
+      if ((vec[i] != "") || printEmpty) {
+        oss << i;
+        if (i==pos) {
+          oss << " -->\t";
+        }
+        else {
+          oss << "\t";
+        }
+        oss <<" [" << vec[i] << "]" << endl;
+      }
     }
   }
   return oss.str();
@@ -60,9 +83,27 @@ string color(string color = "reset", string bold = "r", string ground = "f") {
     oss << f << b << flush;
   } else {
     // color handle
+    // c++11 required
+/*
     vector<string> colorlist {
       "black", "red", "green", "yellow", "blue", "purple", "cyan", "white", "", "default"
     };
+*/
+    // c++98 fallback
+    vector<string> colorlist;
+    colorlist.push_back("black");
+    colorlist.push_back("red");
+    colorlist.push_back("green");
+    colorlist.push_back("yellow");
+    colorlist.push_back("blue");
+    colorlist.push_back("purple");
+    colorlist.push_back("cyan");
+    colorlist.push_back("white");
+    colorlist.push_back("");
+    colorlist.push_back("default");
+
+
+    
     index = in_vector(color, colorlist);
     if (index == -1) {
       oss << "color() error: Unknown color option: " << color << endl << "Valid options: " << endl;
@@ -71,9 +112,27 @@ string color(string color = "reset", string bold = "r", string ground = "f") {
     }
     char c = index +'0';
     // bold handle
+    // c++11 required
+/*
     vector<string> boldlist {
       "r", "b", "", "", "", "", "", "", "", "", "regular", "bold"
     };
+*/
+    // c++98 fallback
+    vector<string> boldlist;
+    boldlist.push_back("r");
+    boldlist.push_back("b");
+    boldlist.push_back("");
+    boldlist.push_back("");
+    boldlist.push_back("");
+    boldlist.push_back("");
+    boldlist.push_back("");
+    boldlist.push_back("");
+    boldlist.push_back("");
+    boldlist.push_back("");
+    boldlist.push_back("regular");
+    boldlist.push_back("bold");
+
     index = in_vector(bold, boldlist);
     while (index >= 10) { index -= 10; }
     if (index == -1) {
@@ -82,10 +141,23 @@ string color(string color = "reset", string bold = "r", string ground = "f") {
       exit(1);
     }
     char b = index +'0';
+
+
     // fore/background handle
+    // c++11 required
+/*
     vector<string> groundlist {
       "", "", "", "f", "b"
     };
+*/ 
+    // c++98 fallback
+    vector<string> groundlist;
+    groundlist.push_back("");
+    groundlist.push_back("");
+    groundlist.push_back("");
+    groundlist.push_back("f");
+    groundlist.push_back("b");
+
     index = in_vector(ground, groundlist);
     if (index == -1) {
       oss << "color() error: Unknown ground option: " << ground << endl << "Valid options: " << endl;
@@ -106,13 +178,12 @@ string str_pos(string str, size_t pos) {
   size_t w = l;
   if (pos > l) w = pos;
   if (pos >= l) {
-    oss << color("red", "bold");
+    oss << color("red");
     for (size_t i = 0; i < w; i++) {
       oss << blk;
     }
     oss << endl << "pos (" << pos << ") out of range (" << l << ")" << endl;
     // oss << color();
-    exit(1);
   }
   for (size_t i = 0; i < w; i++) oss << blk;
   oss << endl << str;
@@ -180,6 +251,25 @@ string str_swap(string str, string str_a, string str_b) {
 }
 
 
+
+
+int getkey() {
+  int ch;
+  struct termios t_old, t_new;
+  tcgetattr(STDIN_FILENO, &t_old);
+  t_new = t_old;
+  t_new.c_lflag &= ~(ICANON | ECHO);
+  tcsetattr(STDIN_FILENO, TCSANOW, &t_new);
+  ch = getchar();
+  tcsetattr(STDIN_FILENO, TCSANOW, &t_old);
+  return ch;
+}
+
+
+
+char KEY_LF = 10;
+char KEY_CR = 13;
+// char KEY_UP[] = { 0x1b, '[', '0', ';', '3', '9', 'm', 0 };
 
 
 #endif
