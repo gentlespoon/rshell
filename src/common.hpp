@@ -24,7 +24,7 @@
 
 using namespace std;
 
-string version = "20151114 chdir & cmdHistory & Nav Keys";
+string version = "20151119 cmdHistory & Pipe";
 bool V = false;
 string user = "user";
 char host[999] = "hostname";
