@@ -332,8 +332,7 @@ d88' `88b  `88b..8P'  d88' `88b d88' `"Y8 `888  `888    888   d88' `88b
 */
 
 
-
-bool EXECUTE(string file, string argv) {
+bool EXECUTE(string file, string argv = "", string rdfile = "") {
   vector<string> argList;
   if (argv.length() != 0) {
     argList = tokenize(argv);
@@ -361,6 +360,13 @@ bool EXECUTE(string file, string argv) {
     args[i+1] = NULL;
     if (V) cout << "================== EXECUTE START ==================" << endl;
     cout << color() << flush; 
+    int file = 0;
+    int stdout = 0;
+    if (rdfile != "") { // if pipe redirect to /tmp/pipefile.tmp to avoid read only.
+      file = open(rdfile.c_str(), O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+      stdout = dup(1); // save stdout;
+      dup2(file, 1);
+    }
     int success;
     int status;
     pid_t c_pid, pid;
@@ -368,26 +374,41 @@ bool EXECUTE(string file, string argv) {
     if (c_pid == 0) {
       //child process running
       execvp(args[0], args);
+      if (rdfile != "") dup2(stdout, 1);
       perror("exec failed");
+      if (V) cout << color("green") << flush;
+      if (V) cout <<"=================== EXECUTE END ===================" << endl;
       delete[] args;
       exit(1);
     }
     else if (c_pid > 0) {
       if ((pid = wait(&status)) < 0) {
         perror("waiting");
+        if (rdfile != "") dup2(stdout, 1);
+        if (V) cout << color("green") << flush;
+        if (V) cout <<"=================== EXECUTE END ===================" << endl;
       }
       if (WIFEXITED(status)) {
         success = WEXITSTATUS(status);
       }
       if (success == 0) {
+        if (rdfile != "") dup2(stdout, 1);
+        if (V) cout << color("green") << flush;
+        if (V) cout <<"=================== EXECUTE END ===================" << endl;
         delete[] args;
         return true;
       }
+      if (rdfile != "") dup2(stdout, 1);
+      if (V) cout << color("green") << flush;
+      if (V) cout <<"=================== EXECUTE END ===================" << endl;
       delete[] args;
       return false;
     }
     else {
       perror("fork failed");
+      if (rdfile != "") dup2(stdout, 1);
+      if (V) cout << color("green") << flush;
+      if (V) cout <<"=================== EXECUTE END ===================" << endl;
       delete[] args;
       exit(1);
     }
@@ -428,6 +449,7 @@ bool execCommand(vector<s_cmd> cmdList) {
     int parenthesis_count = 0;
     if (V) cout << "Now checking the exec bit of command " << i << endl;
     if (V) cout << printlist(cmdList, i);
+
     if (cmdList.at(i).exec == "(") {
       if (V) {cout << "Oooops we found a ( operator, push all commands before corresponding ) into a new cmdList and recurse execCommand." << endl;}
       i++;
@@ -474,7 +496,9 @@ bool execCommand(vector<s_cmd> cmdList) {
     } else if (cmdList.at(i).exec == ";") {
       if (V) cout << "Okay, run anyway." << endl;
       runCurrentCommand = true;
-    } else if (cmdList.at(i).exec == "&&") {
+    }
+
+    else if (cmdList.at(i).exec == "&&") {
       if (V) cout << "Let's see if our previous command executed successfully: ";
       if (!previousStatus) {
         if (V) cout << "false. Do not execute next command." << endl;
@@ -483,7 +507,9 @@ bool execCommand(vector<s_cmd> cmdList) {
         if (V) cout << "true. Execute next command." << endl;
         runCurrentCommand = true;
       }
-    } else if (cmdList.at(i).exec == "||") {
+    }
+
+    else if (cmdList.at(i).exec == "||") {
       if (V) cout << "Let's see if our previous command executed successfully: ";
       if (!previousStatus) {
         if (V) cout << "false. Execute next command." << endl;
@@ -493,14 +519,61 @@ bool execCommand(vector<s_cmd> cmdList) {
         runCurrentCommand = false;
       }
     }
+
+    else if (cmdList.at(i).exec == ">|") {
+      if (V) cout << "Filepiped." << endl;
+      cmdList.at(i).argv += " /tmp/pipefile.tmp"; // pass in pipefile as an argument
+      if (V) cout << "Let's see if our previous command executed successfully: ";
+      if (!previousStatus) {
+        if (V) cout << "false. Do not execute next command." << endl;
+        runCurrentCommand = false;
+      } else {
+        if (V) cout << "true. Execute next command." << endl;
+        runCurrentCommand = true;
+      }
+    }
+
+    else if (cmdList.at(i).exec == ">") {
+      if (V) cout << "Handled in the prev command as redirect output. Skip" << endl;
+        runCurrentCommand = false;
+    }
+
+
+
+
     try {
       if (cmdList.at(i).file == "") {
         if (V) cout << "Empty line. Ignored. Next." << endl;
       } else if (runCurrentCommand) {
         if (V) cout << "So now we decided to execute next command." << endl;
-        previousStatus = EXECUTE(cmdList.at(i).file, cmdList.at(i).argv);
-        if (V) cout << color("green") << flush;
-        if (V) cout <<"=================== EXECUTE END ===================" << endl;
+
+        string rdfile = "";
+        if (i != (cmdList.size()-1)) {
+          if (V) cout << "Check the next command's exec bit to see if we need to do stdout redirect job: " << cmdList.at(i+1).exec << endl;
+          if (cmdList.at(i+1).exec == ">|") {
+            if (V) cout << "Alright, file piping requested. Setting filepipe = true; rdfile = /tmp/pipefile.tmp;" << endl;
+            rdfile = "/tmp/pipefile.tmp";
+          } else if (cmdList.at(i+1).exec == ">") {
+            if (V) cout << "Alright, stdout redirect requested. Setting rdfile = " << cmdList.at(i+1).file << endl;
+            if (cmdList.at(i+1).file == "") {
+              cout << color("red") << flush;
+              cout << "Syntax error: > no redirect path provided. Will output to stdout." << endl;
+              cout << color("green") << flush;
+            }
+            rdfile = cmdList.at(i+1).file;
+          }
+        } else {
+          if (V) cout << "This is already the last command, no need to check for piping exec bit." << endl;
+        }
+        
+        // EXECUTE
+        previousStatus = EXECUTE(cmdList.at(i).file, cmdList.at(i).argv, rdfile);
+
+        if (cmdList.at(i).exec == ">|") {
+          // /tmp/pipefile.tmp already used, remove it
+          remove("/tmp/pipefile.tmp"); // clean up pipefile.tmp
+        }
+
         if (V) cout << "Command " << i << " executed. isSuccess? " << previousStatus << endl;
       }
     } catch (std::exception const& e) {
@@ -509,6 +582,10 @@ bool execCommand(vector<s_cmd> cmdList) {
       cout << color("green") << flush;
     }
   }
+
+
+
+
   if (V) cout << "Exiting function execCommand()" << endl;
   return previousStatus;
 }
@@ -564,7 +641,10 @@ string getCmd() {
     if (V) cout << color("yellow") << flush;
     if (V) cout << cmdBuffer;
     if (V) cout << color("green") << flush << endl;*/
-    if (inchar == 127) { // 127 = backspace
+
+
+
+    if (inchar == KEY_BKSP) { // 127 = backspace
       if (V) cout << "Backspace detected." << endl;
       if (cmdBuffer.length() != 0) {
         // erase everything <cmdBuffer> on screen
@@ -588,7 +668,91 @@ string getCmd() {
           cout << "\b" << flush;
         }
       }
-    } else if ((inchar == KEY_LF)||(inchar == KEY_CR)) { // if ENTER
+    }
+
+    else if (inchar == KEY_TAB) { // tab auto complete
+      if (V) cout << endl << "EXECUTE(\"ls\", \"\", \"/tmp/pathlist.tmp\");" << endl;
+      // int stdout = dup(1);
+      remove("/tmp/pathlist.tmp");
+      EXECUTE("ls", "", "/tmp/pathlist.tmp"); // list files in CWD and redirect output to a file for scanning
+      fstream file;
+      file.open("/tmp/pathlist.tmp");
+      vector<string> pathlist;
+      string pathname;
+      while(file >> pathname) {
+        pathlist.push_back(pathname);
+      }
+      string filenameBuffer = "";
+      for(size_t i = 0; i < cmdBuffer.length(); i++) {
+        if ((cmdBuffer.at(cmdBuffer.length()-1-i) == ' ') || (cmdBuffer.length()-1-i == 0) ) {
+          filenameBuffer = cmdBuffer.substr(cmdBuffer.length()-i);
+          if (V) cout << "filenameBuffer: " << endl << str_pos(filenameBuffer, 0);
+          break;
+        }
+      }
+      vector<string> candidates;
+      for(size_t i = 0; i < pathlist.size(); i++) { // scan candidates
+        bool match = true;
+        for(size_t index_path = 0; index_path < filenameBuffer.length(); index_path++) {
+          if ((index_path < pathlist.at(i).length()) && match) {
+            if (V) {
+              cout << "Compare filenameBuffer[" << index_path << "]" << endl;
+              cout << str_pos(filenameBuffer, index_path);
+              cout << "With pathlist[" << i << "][" << index_path << "]" << endl;
+              cout << str_pos(pathlist.at(i), index_path);
+            }
+            if (filenameBuffer.at(index_path) == pathlist.at(i).at(index_path)) {
+              // filenameBuffer.at(index_path) = pathlist.at(i).at(index_path);
+            } else { // doesnt match
+              match = false;
+            }
+          } else { // filenameBuffer longer than candidate
+            match = false;
+          }
+        }
+        if (match) { // if filenameBuffer scanned full length and still match
+          candidates.push_back(pathlist.at(i));
+        }
+      }
+      cout << color() << flush;
+      if (candidates.size() > 1) { // more than 1 candidates
+        cout << endl;
+        for(size_t i = 0; i < candidates.size(); i++) {
+          vector<string> testargv; 
+          testargv.push_back("-d");
+          testargv.push_back(candidates.at(i));
+          cout << "  " << candidates.at(i);
+          cout << color("green") << flush;
+          if (test(testargv) == 0) { // check if candidate is a directory
+            cout << color() << flush;
+            cout << "/";
+          }
+        }
+        cout << endl;
+        if (!V) printprompt();
+        cout << color() << flush;
+        cout << cmdBuffer << flush;
+      } else if (candidates.size() == 1) { // only 1 candidate
+        candidates.at(0) = candidates.at(0).substr(filenameBuffer.length());
+        if (V) {
+          printprompt();
+          cout << color() << flush;
+          cout << cmdBuffer;
+        }
+        cout << candidates.at(0);
+        cmdBuffer += candidates.at(0);
+        cursor = cmdBuffer.length();
+      } else { // no candidate
+        if (V) {
+          cout << color() << flush;
+          cout << cmdBuffer;
+        }
+      }
+      if (V) cout << color("green") << flush;
+    }
+
+
+    else if ((inchar == KEY_LF)||(inchar == KEY_CR)) { // if ENTER/RETURN
       cout << endl;
       enter = true;
       cmdHistoryPos = cmdHistory.size();
@@ -598,14 +762,17 @@ string getCmd() {
         return "";// if empty line
       } 
       cmdHistory.push_back(cmdBuffer);
-    } else if (inchar == 0x1b) { // 0x1b = ESC. 
+    }
+
+
+    else if (inchar == 0x1b) { // 0x1b = ESC. 
       for (int ESC_IGNORE = 2; ESC_IGNORE > 0; ESC_IGNORE--) {
         inchar = getkey();
       }
 
 
       if (inchar == 'A') { // A up, 
-        if (V) cout << "ANSI_ESCAPE_UP detected, looking into cmdHistory." << endl;
+        if (V) cout << endl << "ANSI_ESCAPE_UP detected, looking into cmdHistory." << endl;
         size_t sz = cmdHistory.size();
         if (cmdHistoryPos == sz-1) {
           cmdHistory.at(cmdHistoryPos) = cmdBuffer;
@@ -627,7 +794,7 @@ string getCmd() {
       }
 
       else if (inchar == 'B') { // B down, c right, d left
-        if (V) cout << "ANSI_ESCAPE_DOWN detected, looking into cmdHistory." << endl;
+        if (V) cout << endl << "ANSI_ESCAPE_DOWN detected, looking into cmdHistory." << endl;
         if (cmdHistoryPos != cmdHistory.size()-1) {
           for (size_t i = 0; i < cmdBuffer.length(); i++) {
             cout << "\b \b" << flush;
@@ -645,38 +812,71 @@ string getCmd() {
       }
 
       else if (inchar == 'C') { // C right
-        if (V) cout << "ANSI_ESCAPE_RIGHT detected." << endl;
+        if (V) cout << endl << "ANSI_ESCAPE_RIGHT detected." << endl;
         if (cursor < cmdBuffer.size()) {
-          cout << color() << flush;
-          cout << cmdBuffer.at(cursor);
-          if (V) cout << color("green") << flush;
-          cursor++;
-          if (V) cout << str_pos(cmdBuffer, cursor);
+          if (V) {
+            cout << str_pos(cmdBuffer, cursor);
+            cout << color() << flush;
+            cout << cmdBuffer << flush;
+            for(size_t pos = cursor+1; pos < cmdBuffer.size(); pos++) {
+              cout << "\b";
+            }
+            cout << color("green") << flush;
+          } else {
+            cout << color() << flush;
+            cout << cmdBuffer.at(cursor);
+            if (V) cout << color("green") << flush;
+          }
+          // if (V) cout << color("green") << flush;
+          // if (V) cout << str_pos(cmdBuffer, cursor);
+        cursor++;
         }
       }
 
       else if (inchar == 'D') { // D left
-        if (V) cout << "ANSI_ESCAPE_LEFT detected." << endl;
+        if (V) cout << endl << "ANSI_ESCAPE_LEFT detected." << endl;
         if (cursor != 0) {
           cout << "\b";  //Cursor moves 1 position backwards
           cursor--;
-          if (V) cout << str_pos(cmdBuffer, cursor);
+          if (V) {
+            cout << str_pos(cmdBuffer, cursor);
+            cout << color() << flush;
+            cout << cmdBuffer << flush;
+            for(size_t pos = cursor; pos < cmdBuffer.size(); pos++) {
+              cout << "\b";
+            }
+            cout << color("green") << flush;
+          }
         }
       }
 
 
-    } else {
-      if (cursor < cmdBuffer.size()) {
-        string chr(1, inchar);
-        cmdBuffer.replace(cursor, 1, chr);
-      } else {
-        cmdBuffer += inchar;
-      }
+    } else { // If not special characters
+      if (V) cout << endl << str_pos(cmdBuffer, cursor);
       cout << color() << flush;
-      cout << inchar << flush;
+      if (cursor < cmdBuffer.size()) { // if not at the end; need to move cursor and reprint
+        string chr(1, inchar);
+        cmdBuffer.insert(cursor, chr);
+        if (V) {
+          cout << cmdBuffer << flush;
+        } else {
+          for(size_t pos = cursor; pos < cmdBuffer.size(); pos++) {
+            cout << cmdBuffer.at(pos);
+          }
+        }
+        for(size_t pos = cursor; pos < cmdBuffer.size()-1; pos++) {
+          cout << "\b";
+        }
+      } else { // if at the end; no need to move cursor or reprint
+        cmdBuffer += inchar;
+        if (V) {
+          cout << cmdBuffer << flush;
+        } else {
+          cout << inchar << flush;
+        }
+      }
       if (V) cout << color("green") << flush;
       cursor++;
-      if (V) cout << endl << str_pos(cmdBuffer, cursor);
     }
     // cout << cmdBuffer << endl;
   }
@@ -703,7 +903,7 @@ int newCmd() {
   
   // getline(cin, cmdBuffer);
   if (cmdBuffer == ""){
-    if (V) cout << "Quotation Error." << endl;
+    // if (V) cout << "Quotation Error." << endl;
     return 0;// if quotation error
   } 
   // override for testing
@@ -732,7 +932,7 @@ int newCmd() {
     cout << color() << flush;
   }
 
-  cout << color("green") << flush;
+  if (V) cout << color("green") << flush;
 
   cmdBuffer = removeComment(cmdBuffer);
   if (cmdBuffer == ""){
@@ -746,6 +946,8 @@ int newCmd() {
   cmdList = parseCmd(cmdList, ";");
   cmdList = parseCmd(cmdList, "&&");
   cmdList = parseCmd(cmdList, "||");
+  cmdList = parseCmd(cmdList, ">|");
+  cmdList = parseCmd(cmdList, ">");
   cmdList = f_parenthesis(cmdList);
   cmdList = trimCmd(cmdList);
   execCommand(cmdList);
@@ -760,10 +962,13 @@ int newCmd() {
 
 
 int main(int argc, char *argv[]) {
-  cout << color("yellow", "b");
+  cout << color("cyan", "b");
   cout << "\n\nrShell [Version " << version << "]" << endl;
   cout << color("yellow");
-  cout << "rShell built-in commands:" << endl;
+  // cout << "rShell supports all commands in /bin/ and /usr/bin/ ." << endl;
+  // cout << "rShell supports ./executable to execute file in current working directory." << endl;
+  cout << "rShell supports absolute and relative path to executable." << endl;
+  cout << color("yellow", "b")  << "rShell built-in commands:" << color("yellow")  << endl;
   cout << "  cd [PATH]                           # Change working directory." << endl;
   cout << "  exit [0-9 (optional)]               # Exit rShell <with optional exit code>." << endl;
   cout << "  test [-e|-f|-d (optional)] [PATH]   # Test file." << endl;
@@ -771,8 +976,15 @@ int main(int argc, char *argv[]) {
   cout << "  viewcmdhistory                      # View command history."  << endl;
   cout << "  [ [-e|-f|-d (optional)] [PATH] ]    # Test file." << endl;
   cout << "  UP/DOWN arrow key                   # Navigate through command history." << endl;
-  cout << "  LEFT/RIGHT arrow key                # Navigate through the cmdBuffer (insert mode）." << endl;
-  cout << "  BACKSPACE                           # It took me quite a while to make this work." << endl;
+  cout << "  LEFT/RIGHT arrow key                # Navigate in the cmdBuffer." << endl;
+  cout << "  BACKSPACE                           # Took me quite a while to make this work." << endl;
+  cout << color("yellow", "b") << "rShell supports connectors:" << color("yellow") << endl;
+  cout << "  ;                                   # Execute unconditionally." << endl;
+  cout << "  &&                                  # Execute if the previous command succ." << endl;
+  cout << "  ||                                  # Execute if the previous command fail." << endl;
+  // cout << "  >|                                  # Filepipe the prev command's output to next command." << endl;
+  // cout << "     ** NOT in the way Unix pipe does. rShell does this by redirecting prev command's stdout to a FILE and pass the FILE as the LAST ARGUMENT to the next command." << endl;
+  cout << "  > [PATH]                            # Redirect stdout to a file." << endl;
   cout << endl;
   user = getlogin();
   gethostname(host, 999);

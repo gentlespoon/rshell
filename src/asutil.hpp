@@ -219,10 +219,12 @@ vector<string> tokenize(string str) {
   } else if (str.at(i) == ' ') {
     if (V) {cout << str_pos(str, i);}
     if (!isInQuote) {
-    if (V) {cout << "This is a real space. Tokenize." << endl;}
-    token.push_back(str.substr(0, i));
-    str = str.substr(i+1);
-    i=-1;
+      if (V) {cout << "This is a real space. Tokenize." << endl;}
+      if ((str.substr(0, i) != "") && (str.substr(0, i) != " ")) {
+        token.push_back(str.substr(0, i));
+      }
+      str = str.substr(i+1);
+      i=-1;
     } else {
       if (V) {cout << "This is a space in quote. Ignore." << endl;}
     }
@@ -269,6 +271,8 @@ int getkey() {
 
 char KEY_LF = 10;
 char KEY_CR = 13;
+char KEY_TAB = 9;
+char KEY_BKSP = 127;
 // char KEY_UP[] = { 0x1b, '[', '0', ';', '3', '9', 'm', 0 };
 
 
