@@ -1,5 +1,6 @@
 #include "common.hpp"
 #include "asutil.hpp"
+#include "built_in_cmds.cpp"
 
 using namespace std;
 
@@ -29,6 +30,7 @@ struct s_cmd {
     argv = c;
   }
 };
+
 
 
 
@@ -316,71 +318,6 @@ vector<s_cmd> trimCmd(vector<s_cmd> cmdList) {
 
 
 
-
-/*
- o8o                  .                                            oooo  
- `"'                .o8                                            `888  
-oooo  ooo. .oo.   .o888oo  .ooooo.  oooo d8b ooo. .oo.    .oooo.    888  
-`888  `888P"Y88b    888   d88' `88b `888""8P `888P"Y88b  `P  )88b   888  
- 888   888   888    888   888ooo888  888      888   888   .oP"888   888  
- 888   888   888    888 . 888    .o  888      888   888  d8(  888   888  
-o888o o888o o888o   "888" `Y8bod8P' d888b    o888o o888o `Y888""8o o888o 
-*/
-
-bool test(vector<string> argv) {
-  // if (V) cout << color("green") << flush;
-  bool result = false;
-  if (argv[0] == "-f") { // -f flag
-    if (V) cout << "Check File" << endl;
-    struct stat sb;
-    stat(const_cast<char*>(argv[1].c_str()), &sb);
-    if ((sb.st_mode & S_IFMT) == S_IFREG) {
-      if (V) cout << "Input is a File. Filename entered: " << argv[1] << endl;
-      result = true;
-    } else {
-      if (V) cout << "Input is not a File. Filename entered: " << argv[1] << endl;
-      result = false;
-    }
-  } else if (argv[0] == "-d") { // -d flag
-    if (V) cout << "Check Dir" << endl;
-    struct stat sb;
-    stat(const_cast<char*>(argv[1].c_str()), &sb);
-    if ((sb.st_mode & S_IFMT) == S_IFDIR) {
-      if (V) cout << "Input is a Directory. Filename entered: " << argv[1] << endl;
-      result = true;
-    } else {
-      if (V) cout << "Input is not a Directory. Filename entered: " << argv[1] << endl;
-      result = false;
-    }
-  } else if (argv[0] == "-e") { // -e flag
-    if (V) cout << "Check Exist" << endl;
-    struct stat sb;
-    if( stat(const_cast<char*>(argv[1].c_str()), &sb) != 0) {
-      if (V) cout << "Input does not exist. Filename entered: " << argv[1] << endl;
-      result = false;
-    } else {
-      if (V) cout << "Input exists. Filename entered: " << argv[1] << endl;
-      result = true;
-    }
-  } else if (argv[0].at(0) == '-') { // if argv is a flag but not recognized
-    cout << color() << "Invalid flag: " << argv[0] << color("green") << endl;
-  } else { // if no flag then add -e as default flag and recurse to execute
-    argv.insert(argv.begin(), "-e");
-    if (test(argv)) {
-      result = true;
-    } else {
-      result = false;
-    }
-  }
-  // if (V) cout << color() << flush;
-  return result;
-}
-
-
-
-
-
-
 /*
                                                           .             
                                                         .o8             
@@ -390,71 +327,6 @@ d88' `88b  `88b..8P'  d88' `88b d88' `"Y8 `888  `888    888   d88' `88b
 888    .o  .o8"'88b   888    .o 888   .o8  888   888    888 . 888    .o 
 `Y8bod8P' o88'   888o `Y8bod8P' `Y8bod8P'  `V88V"V8P'   "888" `Y8bod8P' 
 */
-
-int is_built_in(string file, vector<string> argv) {
-  // if (V) cout << color("green") << flush;
-  // if "file argv" is a built in command then execute it and {return 1 if success, 0 if failed}, otherwise do nothing and return -1
-  int executed = -1;
-  // handle rshell built-in commands;
-  if (file == "exit") {
-    executed = 1;
-    cout << color() << flush;
-    exit(0);
-  }
-
-  else if (file == "verbose") {
-    if ((argv.at(0) == "on") || argv.at(0) == "1") {
-      V = true;
-      cout << color() << flush;
-      cout << "Verbose output is now turned on.\nToggle: verbose [on|off]" << endl;
-      cout << color("green") << flush;
-    } else {
-      V = false;
-      cout << color() << flush;
-      cout << "Verbose output is now turned off.\nToggle: verbose [on|off]" << endl;
-      cout << color("green") << flush;
-    }
-    executed = 1;
-  }
-
-  else if (file == "test") {
-    executed = 0;
-    bool success = test(argv);
-    if (success) {
-      executed = 1;
-    } else {
-      executed = 0;
-    }
-  }
-
-  else if (file == "[") {
-    if (argv.at(argv.size()-1) == "]") {
-      // if (V) cout << << color("green") << flush;
-      if (V) cout << "[] detected, identified as alias to built-in cmd `test`." << endl << "argv.pop_back to erase ] and pass it to test function." << endl;
-      // if (V) cout << color() << flush;
-      argv.pop_back();
-      executed = 0;
-      bool success = test(argv);
-      if (success) {
-        executed = 1;
-      } else {
-        executed = 0;
-      }
-    }
-  }
-
-  return executed;
-}
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -472,8 +344,10 @@ bool EXECUTE(string file, string argv) {
   } else {
     if (V) cout << "No arguments provided." << endl;
   }
+  if (V) cout << "Check if it is internal command." << endl;
   int built_in = is_built_in(file, argList);
-  if (built_in == -1) { // if "file argv" is not a built-in command:
+  if (built_in == 1) { // if "file argv" is not a built-in command:
+    if (V) cout << "Not an internal command." << endl;
     // convert (argv) vector<string> to char** for execvp
     char **args = new char*[argList.size()+2];
     args[0] = const_cast<char*>(file.c_str());
@@ -516,7 +390,7 @@ bool EXECUTE(string file, string argv) {
     }
 
     delete[] args;
-  } else if (built_in == 1) { // is built-in cmd and success
+  } else if (built_in == 0) { // is built-in cmd and success
     return true;
   } else { // is built-in cmd but failed
     return false;
@@ -547,15 +421,15 @@ bool execCommand(vector<s_cmd> cmdList) {
     // if (V) cout << "[" << cmdList.at(i).exec << "] [" << cmdList.at(i).file << "] [" << cmdList.at(i).argv << "]" << endl;
     if (V) cout << printlist(cmdList, i);
     if (V) cout << "First we check the exec bit: " << cmdList.at(i).exec << endl;
-
-
     // construct recursive function based on ()s
     int parenthesis_count = 0;
+    if (V) cout << "Now checking the exec bit of command " << i << endl;
+    if (V) cout << printlist(cmdList, i);
     if (cmdList.at(i).exec == "(") {
       if (V) {cout << "Oooops we found a ( operator, push all commands before corresponding ) into a new cmdList and recurse execCommand." << endl;}
       i++;
       vector<s_cmd> child_cmdList;
-      for (size_t index = 0; i < cmdList.size(); index++, i++) {
+      for (size_t index = 0; i < cmdList.size(); index++, i++) { 
         if (V) cout << "Checking the exec bit of commands in parenthesis: " << cmdList.at(i).exec << endl;
         if (cmdList.at(i).exec != ")") {
           if (V) cout << "Get one, pushing into child_cmdList." << endl;
@@ -590,6 +464,7 @@ bool execCommand(vector<s_cmd> cmdList) {
             break;
           }
         }
+        // if (V) cout << "cmdList.size() = " << cmdList.size() << "    index = " << index << "    i = " << i << endl;
       }
 
 
@@ -615,14 +490,20 @@ bool execCommand(vector<s_cmd> cmdList) {
         runCurrentCommand = false;
       }
     }
-    if (cmdList.at(i).file == "") {
-      if (V) cout << "Empty line. Ignored. Next." << endl;
-    } else if (runCurrentCommand) {
-      if (V) cout << "So now we decided to execute next command." << endl;
-      previousStatus = EXECUTE(cmdList.at(i).file, cmdList.at(i).argv);
-      if (V) cout << color("green") << flush;
-      if (V) cout <<"=================== EXECUTE END ===================" << endl;
-      if (V) cout << "Command " << i << " executed. isSuccess? " << previousStatus << endl;
+    try {
+      if (cmdList.at(i).file == "") {
+        if (V) cout << "Empty line. Ignored. Next." << endl;
+      } else if (runCurrentCommand) {
+        if (V) cout << "So now we decided to execute next command." << endl;
+        previousStatus = EXECUTE(cmdList.at(i).file, cmdList.at(i).argv);
+        if (V) cout << color("green") << flush;
+        if (V) cout <<"=================== EXECUTE END ===================" << endl;
+        if (V) cout << "Command " << i << " executed. isSuccess? " << previousStatus << endl;
+      }
+    } catch (std::exception const& e) {
+      cout << color("red", "bold");
+      cout << "Syntax error" << endl;
+      cout << color("green");
     }
   }
   if (V) cout << "Exiting function execCommand()" << endl;
@@ -648,9 +529,11 @@ o888o   d888b    `Y888""8o o888o o888o o888o `Y8bod8P'
 
 
 int newCmd() {
-  // to distinguish with system shell I use "R$" instead of "$"
-  cout << color("green", "bold") << "" << user << "@" << host << " R$ " << flush;
-  cout << color();
+  // to distinguish with system shell I use "[R]$" instead of "$"
+  cout << color("green", "bold") << "" << user << "@" << host << flush;
+  cout << color() << ":" << flush;
+  cout << color("blue", "bold") << dir << flush;
+  cout << color() << "[R]$ " << flush;
   
   // GET USER INPUT
   string newLine;
@@ -717,6 +600,12 @@ int main(int argc, char *argv[]) {
   cout << "Use \"verbose [on|off]\" to toggle verbose output."  << endl << endl;
   user = getlogin();
   gethostname(host, 999);
+  getcwd(chardir,BUFSIZ);
+  dir = chardir;
+  home = charh;
+  dir = str_swap(dir, home, "~");
+  // cout << home << endl;
+  // cout << dir << endl;
   while (1) {
     newCmd();
   }

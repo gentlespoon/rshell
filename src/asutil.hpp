@@ -5,10 +5,11 @@
 // Functions:
 //   int in_vector(string, vector<string>);
 //   int in_vector(int, vector<int>);
-//   string print_v(vector<T>, bool = true) 
-//   string color(string = "reset", string = "r", string = "f")
-//   string str_pos(string, size_t)
-//   vector<string> tokenize(string str)
+//   string print_v(vector<T>, bool = true);
+//   string color(string = "reset", string = "r", string = "f");
+//   string str_pos(string, size_t);
+//   vector<string> tokenize(string);
+//   string str_swap(string, string, string);
 
 
 #ifndef _A_S_UTIL_
@@ -169,6 +170,14 @@ vector<string> tokenize(string str) {
 
 
 
+string str_swap(string str, string str_a, string str_b) {
+  if (str.find(str_a) != string::npos) {
+    str.replace(str.find(str_a), str_a.length(), str_b);
+  } else if (str.find(str_b) != string::npos) {
+    str.replace(str.find(str_b), str_b.length(), str_a);
+  }
+  return str;
+}
 
 
 
