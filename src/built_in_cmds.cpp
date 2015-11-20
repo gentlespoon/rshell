@@ -45,11 +45,7 @@ int test(vector<string> argv) { // -1 on fail || 0 on succ
     cout << color() << "Invalid flag: " << argv[0] << color("green") << endl;
   } else { // if no flag then add -e as default flag and recurse to execute
     argv.insert(argv.begin(), "-e");
-    if (test(argv)) {
-      result = 0;
-    } else {
-      result = -1;
-    }
+    result = test(argv);
   }
   // if (V) cout << color() << flush;
   return result;
