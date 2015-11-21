@@ -16,6 +16,7 @@ Anything after a '#' is a considered a comment and will be ignored.
 ## Recently Added Features
 ```
 test command. ex: test -e /test/file/path
+  supports -e/-f/-d
 bracket command. ex: [ -e /test/file/path ]
 precedence operators: ex: (echo A  && echo B) || (echo C && echo D)
 ```
