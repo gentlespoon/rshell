@@ -13,10 +13,15 @@ where executable is an executable program in the PATH and argumentList is a list
 Calling 'exit' exits the shell.
 
 Anything after a '#' is a considered a comment and will be ignored.
+## Recently Added Features
+```
+test command. ex: test -e /test/file/path
+bracket command. ex: [ -e /test/file/path ]
+precedence operators: ex: (echo A  && echo B) || (echo C && echo D)
+```
 ## Example commands
 ```
 $ ls -a; echo hello && mkdir test || echo world; git status
-$ test -e /test/file/path && echo "path exists"
 ```
 
 ## Installation
