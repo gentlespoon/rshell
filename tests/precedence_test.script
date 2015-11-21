@@ -1,36 +1,61 @@
-Script started on Thurs 19 Nov 2015 11:35:12 PM PST
+Script started on Fri 20 Nov 2015 05:58:23 PST
 [cbui005@hammer rshell]$ bin/rshell
 
 
 rShell [Version 20151119 cmdHistory & Pipe]
 
-[cbui005@hammer.cs.ucr.edu] R$ echo A && echo B || echo C && echo D
+rShell supports absolute and relative path to executable.
+rShell built-in commands:
+  cd [PATH]                           # Change working directory.
+  exit [0-9 (optional)]               # Exit rShell <with optional exit code>.
+  test [-e|-f|-d (optional)] [PATH]   # Test file.
+  verbose [on|off]                    # Toggle verbose output.
+  viewcmdhistory                      # View command history.
+  [ [-e|-f|-d (optional)] [PATH] ]    # Test file.
+  UP/DOWN arrow key                   # Navigate through command history.
+  LEFT/RIGHT arrow key                # Navigate in the cmdBuffer.
+  BACKSPACE                           # Took me quite a while to make this work.
+rShell supports connectors:
+  ;                                   # Execute unconditionally.
+  &&                                  # Execute if the previous command succ.
+  ||                                  # Execute if the previous command fail.
+  > [PATH]                            # Redirect stdout to a file.
+
+[cbui005@hammer.cs.ucr.edu:-rshell-2180994:~/workspace:[rShell<0>]$ echo A && echo B || echo C && echo D
 A
 B
 D
 
-[cbui005@hammer.cs.ucr.edu] R$ (echo A && echo B) || (echo C && echo D)
+[cbui005@hammer.cs.ucr.edu:-rshell-2180994:~/workspace:[rShell<1>]$ (echo A && echo B) || (echo C && echo D)
 A
 B
 
-[cbui005@hammer.cs.ucr.edu] R$ ((echo A (echo B && echo C)) && echo D) 
-syntax error
+[cbui005@hammer.cs.ucr.edu:-rshell-2180994:~/workspace:[rShell<2>]$ ((echo A (echo B && echo C)) && echo D) 
+A
+Syntax error.
 
-[cbui005@hammer.cs.ucr.edu] R$ (echo A && echo B) && ((echo C || echo D) && (echo E || echo F))
+[cbui005@hammer.cs.ucr.edu:-rshell-2180994:~/workspace:[rShell<3>]$ (echo A && echo B) && ((echo C || echo D) && (echo E || echo F))
 A
 B
 C
 E
 
-[cbui005@hammer.cs.ucr.edu] R$ ([ -f main.cpp ] || echo A) && echo B
+[cbui005@hammer.cs.ucr.edu:-rshell-2180994:~/workspace:[rShell<4>]$ ([ -f main.cpp ] || echo A) && echo B
+A
 B
 
-[cbui005@hammer.cs.ucr.edu] R$ (echo 1 && echo 2) && ((echo 3 || echo 4) && echo 5)
+[cbui005@hammer.cs.ucr.edu:-rshell-2180994:~/workspace:[rShell<5>]$ ([ -f src ] || echo A) && echo B     
+A
+B
+
+[cbui005@hammer.cs.ucr.edu:-rshell-2180994:~/workspace:[rShell<6>]$ (echo 1 && echo 2) && ((echo 3 || echo 4) && echo 5)
 1
 2
 3
 5
 
-[cbui005@hammer.cs.ucr.edu] R$ exit
+[cbui005@hammer.cs.ucr.edu:-rshell-2180994:~/workspace:[rShell<7>]$ exit
+Exit
 
-Script done on Thurs 19 Nov 2015 11:36:07 PM PST
+
+Script done on Fri 20 Nov 2015 06:00:48 PST
