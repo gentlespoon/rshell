@@ -2,7 +2,7 @@ Script started on Thurs 19 Nov 2015 11:38:12 PM PST
 [cbui005@hammer rshell]$ bin/rshell
 
 
-rShell [Version 20151103 exec]
+rShell [Version 20151119 cmdHistory & Pipe]
 
 [cbui005@hammer.cs.ucr.edu] R$ test -e src && echo "exists"
 exists
