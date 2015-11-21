@@ -1,0 +1,30 @@
+Script started on Thurs 19 Nov 2015 11:35:12 PM PST
+[cbui005@hammer rshell]$ bin/rshell
+
+
+rShell [Version 20151103 exec]
+
+[cbui005@hammer.cs.ucr.edu] R$ echo A && echo B || echo C && echo D
+A
+B
+D
+
+[cbui005@hammer.cs.ucr.edu] R$ (echo A && echo B) || (echo C && echo D)
+A
+B
+
+// error after echo A, should not output
+[cbui005@hammer.cs.ucr.edu] R$ ((echo A (echo B && echo C)) && echo D) 
+B
+C
+D
+
+[cbui005@hammer.cs.ucr.edu] R$ (echo A && echo B) && ((echo C || echo D) && (echo E || echo F))
+A
+B
+C
+E
+
+[cbui005@hammer.cs.ucr.edu] R$ exit
+
+Script done on Thurs 19 Nov 2015 11:36:07 PM PST
