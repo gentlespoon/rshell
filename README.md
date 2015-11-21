@@ -19,7 +19,21 @@ test command. ex: test -e /test/file/path
   supports -e/-f/-d
 bracket command. ex: [ -e /test/file/path ]
 precedence operators: ex: (echo A  && echo B) || (echo C && echo D)
+ArrowKeys navigation / command history
+Output redirect
 ```
+
+## Design
+```
+how your program is designed
+  every step has its own function
+where extensions/changes to the program should be made
+  tokenize
+  parseCommand
+  execCommand
+  EXECUTE
+```
+
 ## Example commands
 ```
 $ ls -a; echo hello && mkdir test || echo world; git status
