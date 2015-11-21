@@ -13,17 +13,23 @@ D
 A
 B
 
-// error after echo A, should not output
 [cbui005@hammer.cs.ucr.edu] R$ ((echo A (echo B && echo C)) && echo D) 
-B
-C
-D
+syntax error
 
 [cbui005@hammer.cs.ucr.edu] R$ (echo A && echo B) && ((echo C || echo D) && (echo E || echo F))
 A
 B
 C
 E
+
+[cbui005@hammer.cs.ucr.edu] R$ ([ -f main.cpp ] || echo A) && echo B
+B
+
+[cbui005@hammer.cs.ucr.edu] R$ (echo 1 && echo 2) && ((echo 3 || echo 4) && echo 5)
+1
+2
+3
+5
 
 [cbui005@hammer.cs.ucr.edu] R$ exit
 
