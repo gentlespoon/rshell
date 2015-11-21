@@ -16,6 +16,7 @@ Anything after a '#' is a considered a comment and will be ignored.
 ## Example commands
 ```
 $ ls -a; echo hello && mkdir test || echo world; git status
+$ test -e /test/file/path && echo "path exists"
 ```
 
 ## Installation
