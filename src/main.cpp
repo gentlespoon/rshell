@@ -635,7 +635,11 @@ void printprompt() {
   cout << color("cyan", "bold") << flush;
   cout << dir << flush;
   cout << color() << flush;
-  cout << ":[rShell<" << cmdHistoryPos << ">]$ " << flush;
+  cout << ":" << flush;
+  cout << color("yellow") << flush;
+  cout << "[rShell<" << cmdHistoryPos << ">]" << flush;
+  cout << color() << flush;
+  cout << "$ " << flush; 
   if (V) cout << color("green") << flush;
 }
 
