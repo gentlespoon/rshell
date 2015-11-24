@@ -10,35 +10,53 @@ int test(vector<string> argv) { // -1 on fail || 0 on succ
   if (argv.size() == 0) { return -1; }
   int result = -1;
   if (argv[0] == "-f") { // -f flag
-    if (V) cout << "Check File" << endl;
+    if (V) {
+      cout << "Check File" << endl;
+    }
     struct stat sb;
     stat(const_cast<char*>(argv[1].c_str()), &sb);
     if ((sb.st_mode & S_IFMT) == S_IFREG) {
-      if (V) cout << "Input is a File. Filename entered: " << argv[1] << endl;
+      if (V) {
+        cout << "Input is a File. Filename entered: " << argv[1] << endl;
+      }
       result = 0;
     } else {
-      if (V) cout << "Input is not a File. Filename entered: " << argv[1] << endl;
+      if (V) {
+        cout << "Input is not a File. Filename entered: " << argv[1] << endl;
+      }
       result = -1;
     }
   } else if (argv[0] == "-d") { // -d flag
-    if (V) cout << "Check Dir" << endl;
+    if (V) {
+      cout << "Check Dir" << endl;
+    }
     struct stat sb;
     stat(const_cast<char*>(argv[1].c_str()), &sb);
     if ((sb.st_mode & S_IFMT) == S_IFDIR) {
-      if (V) cout << "Input is a Directory. Filename entered: " << argv[1] << endl;
+      if (V) {
+        cout << "Input is a Directory. Filename entered: " << argv[1] << endl;
+      }
       result = 0;
     } else {
-      if (V) cout << "Input is not a Directory. Filename entered: " << argv[1] << endl;
+      if (V) {
+        cout << "Input is not a Directory. Filename entered: " << argv[1] << endl;
+      }
       result = -1;
     }
   } else if (argv[0] == "-e") { // -e flag
-    if (V) cout << "Check Exist" << endl;
+    if (V) {
+      cout << "Check Exist" << endl;
+    }
     struct stat sb;
     if( stat(const_cast<char*>(argv[1].c_str()), &sb) != 0) {
-      if (V) cout << "Input does not exist. Filename entered: " << argv[1] << endl;
+      if (V) {
+        cout << "Input does not exist. Filename entered: " << argv[1] << endl;
+      }
       result = -1;
     } else {
-      if (V) cout << "Input exists. Filename entered: " << argv[1] << endl;
+      if (V) {
+        cout << "Input exists. Filename entered: " << argv[1] << endl;
+      }
       result = 0;
     }
   } else if (argv[0].at(0) == '-') { // if argv is a flag but not recognized
@@ -120,7 +138,9 @@ int cd(vector<string> argv) {
 
 
 int is_built_in(string file, vector<string> argv) {
-  if (V) cout << "Processing by is_built_in()" << endl;
+  if (V) {
+    cout << "Processing by is_built_in()" << endl;
+  }
   // if "file argv" is a built in command then execute it and {return 0 if success, -1 if failed}, otherwise do nothing and return 1
   int exitcode = 1;
   // handle rshell built-in commands;
@@ -144,7 +164,9 @@ int is_built_in(string file, vector<string> argv) {
   else if (file == "[") {
     if (argv.at(argv.size()-1) == "]") {
       exitcode = -1; // mark as internal command.
-      if (V) cout << "[] detected, identified as alias to built-in cmd `test`." << endl << "argv.pop_back to erase ] and pass it to test function." << endl;
+      if (V) {
+        cout << "[] detected, identified as alias to built-in cmd `test`." << endl << "argv.pop_back to erase ] and pass it to test function." << endl;
+      }
       argv.pop_back();
       return test(argv);
     }
