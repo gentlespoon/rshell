@@ -924,7 +924,9 @@ string getCmd() {
     inchar = getkey();
     // getkey (asutil.hpp)
     if (inchar == KEY_BKSP) { // 127 = backspace
-      if (V) cout << "Backspace detected." << endl;
+      if (V) {
+        cout << "Backspace detected." << endl;
+      }
       if (cmdBuffer.length() != 0) {
         // erase everything <cmdBuffer> on screen
         for (size_t i = cursor; i < cmdBuffer.length(); i++) {
@@ -956,10 +958,38 @@ string getCmd() {
       }
     }
 
+
+
+
+
+
+
+
+
+/*
     else if (inchar == KEY_TAB) {
-      // tab auto complete
       if (V) {
-        cout << endl << "EXECUTE(\"ls\", \"\", \"/tmp/pathlist.tmp\");" << endl;
+        cout << "TAB detected." << endl;
+      }
+      
+      if (V) {
+        cout << "Getting filenameBuffer.." << endl;
+      }
+      string filenameBuffer = "";
+      for (size_t i = 0; i < cmdBuffer.length(); i++) {
+        if (cmdBuffer.at(cmdBuffer.length()-1-i) == ' ') {
+          filenameBuffer = cmdBuffer.substr(cmdBuffer.length()-i);
+          break;
+        }
+      }
+      if (V) {
+        cout << "filenameBuffer: " << filenameBuffer << endl;
+      }
+
+
+      if (V) {
+        cout << "Getting file list..." << endl;
+        cout << "EXECUTE(\"ls\", \"\", \"/tmp/pathlist.tmp\");" << endl;
       }
       remove("/tmp/pathlist.tmp");
       EXECUTE("ls", "", "/tmp/pathlist.tmp");
@@ -971,33 +1001,23 @@ string getCmd() {
       while(file >> pathname) {
         pathlist.push_back(pathname);
       }
-      string filenameBuffer = "";
-      for(size_t i = 0; i < cmdBuffer.length(); i++) {
-        if ((cmdBuffer.at(cmdBuffer.length()-1-i) == ' ') || (cmdBuffer.length()-1-i == 0) ) {
-          filenameBuffer = cmdBuffer.substr(cmdBuffer.length()-i);
-          if (V) {
-            cout << "filenameBuffer: " << endl << str_pos(filenameBuffer, 0);
-          }
-          break;
-        }
+      if (V) {
+        cout << "Pathlist: " << endl << print_v(pathlist);
       }
+
       vector<string> candidates;
-      for(size_t i = 0; i < pathlist.size(); i++) { // scan candidates
+      for(size_t i = 0; i < pathlist.size(); i++) { // scan through candidates
         bool match = true;
-        for(size_t index_path = 0; index_path < filenameBuffer.length(); index_path++) {
-          if ((index_path < pathlist.at(i).length()) && match) {
-            if (V) {
-              cout << "Compare filenameBuffer[" << index_path << "]" << endl;
-              cout << str_pos(filenameBuffer, index_path);
-              cout << "With pathlist[" << i << "][" << index_path << "]" << endl;
-              cout << str_pos(pathlist.at(i), index_path);
-            }
-            if (filenameBuffer.at(index_path) == pathlist.at(i).at(index_path)) {
-              // filenameBuffer.at(index_path) = pathlist.at(i).at(index_path);
-            } else { // doesnt match
-              match = false;
-            }
-          } else { // filenameBuffer longer than candidate
+        for(size_t j = 0; j < filenameBuffer.length()-1 && j < pathlist.at(i).length()-1 && match; j++) { // scan through a single candidate
+          if (V) {
+            cout << "Compare filenameBuffer[" << j << "]" << endl;
+            cout << str_pos(filenameBuffer, j);
+            cout << "With pathlist[" << i << "][" << j << "]" << endl;
+            cout << str_pos(pathlist.at(i), j);
+          }
+          if (filenameBuffer.at(j) == pathlist.at(i).at(j)) {
+            
+          } else { // doesnt match
             match = false;
           }
         }
@@ -1012,6 +1032,7 @@ string getCmd() {
           vector<string> testargv; 
           testargv.push_back("-d");
           testargv.push_back(candidates.at(i));
+          cout << color() << flush;
           cout << "  " << candidates.at(i);
           cout << color("green") << flush;
           if (test(testargv) == 0) { // check if candidate is a directory
@@ -1047,6 +1068,14 @@ string getCmd() {
         cout << color("green") << flush;
       }
     }
+*/
+
+
+
+
+
+
+
 
 
     else if ((inchar == KEY_LF)||(inchar == KEY_CR)) { // if ENTER/RETURN
