@@ -73,6 +73,7 @@ string print_v(vector<T> vec, size_t pos = SIZE_MAX, bool printEmpty = true) {
   return oss.str();
 }
 
+
 string color(string color = "reset", string bold = "r", string ground = "f") {
   ostringstream oss;
   int index;

@@ -966,10 +966,10 @@ string getCmd() {
 
 
 
-/*
+
     else if (inchar == KEY_TAB) {
       if (V) {
-        cout << "TAB detected." << endl;
+        cout << endl << "TAB detected." << endl;
       }
       
       if (V) {
@@ -1006,25 +1006,64 @@ string getCmd() {
       }
 
       vector<string> candidates;
-      for(size_t i = 0; i < pathlist.size(); i++) { // scan through candidates
-        bool match = true;
-        for(size_t j = 0; j < filenameBuffer.length()-1 && j < pathlist.at(i).length()-1 && match; j++) { // scan through a single candidate
-          if (V) {
-            cout << "Compare filenameBuffer[" << j << "]" << endl;
-            cout << str_pos(filenameBuffer, j);
-            cout << "With pathlist[" << i << "][" << j << "]" << endl;
-            cout << str_pos(pathlist.at(i), j);
-          }
-          if (filenameBuffer.at(j) == pathlist.at(i).at(j)) {
-            
-          } else { // doesnt match
-            match = false;
+      if (filenameBuffer == "") {
+
+        // if user entered nothing that can be considered as a path
+        if (V) {
+          cout << "Filename empty, cout everything in Pathlist.." << endl;
+        }
+        cout << color() << flush;
+        if (!V) {
+          cout << endl;
+        }
+        for (size_t i = 0; i < pathlist.size(); i++) {
+          cout << pathlist[i] << "\t";
+        }
+        cout << endl;
+        if (!V) {
+          printprompt();
+        }
+        cout << cmdBuffer;
+        cout << color("green") << flush;
+
+      } else {
+
+        // if user entered something as a path
+        if (V) {
+          cout << "Filename not empty, comparing Pathlist.." << endl;
+        }
+        candidates = pathlist;
+        for(size_t i = 0; i < filenameBuffer.length(); i++) {
+        // scan through filenameBuffer;
+          for(size_t j = 0; j < candidates.size(); j++) {
+            // scan through a single candidate
+            if (V) {
+              cout << "Compare filenameBuffer[" << i << "]: " << endl;
+              cout << str_pos(filenameBuffer, i);
+              cout << "With pathlist[" << j << "][" << i << "]" << endl;
+              cout << str_pos(candidates.at(j), i);
+            }
+            if (filenameBuffer.at(i) == candidates.at(j).at(i)) {
+              if (V) {
+                cout << "Match. Do nothing." << endl;
+              }
+            } else {
+              if (V) {
+                cout << "Does not match, erase from candidates." << endl;
+              }
+              candidates.erase(candidates.begin()+j);
+              j--;
+              if (V) {
+                cout << "Candidates: " << endl << print_v(candidates);
+              }
+            }
           }
         }
-        if (match) { // if filenameBuffer scanned full length and still match
-          candidates.push_back(pathlist.at(i));
+        if (V) {
+          cout << "After selecting candidates: " << endl << print_v(candidates) << endl;
         }
       }
+      /*
       cout << color() << flush;
       if (candidates.size() > 1) { // more than 1 candidates
         cout << endl;
@@ -1067,8 +1106,8 @@ string getCmd() {
       if (V) {
         cout << color("green") << flush;
       }
+      */
     }
-*/
 
 
 
@@ -1327,6 +1366,13 @@ int newCmd() {
 
 
 int main(int argc, char *argv[]) {
+  // cmdline argument to toggle verbose output
+  if (argc == 2) {
+    string flag = argv[1];
+    if (flag == "-v") {
+      V = true;
+    }
+  }
   cout << color("cyan", "b");
   cout << "\n\nrShell [Version " << version << "]" << endl;
   cout << color("yellow");
