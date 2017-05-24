@@ -2,6 +2,7 @@
 By [Calvin Bui](https://github.com/cbui005/) and [Angda Song](https://github.com/gentlespoon/)
 
 Rshell is a Linux command shell implemented in C++.
+Rshell is the course project for UCR CS 100 Software Construction.
 
 ## Usage
 Reads in commands one line at a time. Commands will have the form: 
